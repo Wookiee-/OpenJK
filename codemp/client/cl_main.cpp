@@ -3318,7 +3318,7 @@ void CL_GlobalServers_f( void ) {
 	to.type = NA_IP;
 	to.port = BigShort(PORT_MASTER);
 
-	Com_Printf( "Requesting servers from the master %s (%s)...\n", masteraddress, NET_AdrToString( to ) );
+	Com_Printf( "Requesting servers from the master %s ...\n", masteraddress );
 
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
