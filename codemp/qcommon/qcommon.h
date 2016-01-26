@@ -213,8 +213,8 @@ PROTOCOL
 
 #define	PROTOCOL_VERSION	26
 
-#define	UPDATE_SERVER_NAME			"master.moviebattles2.com"
-#define MASTER_SERVER_NAME			"master.moviebattles2.com"
+#define	UPDATE_SERVER_NAME			"master.moviebattles.org"
+#define MASTER_SERVER_NAME			"master.moviebattles.org"
 
 #define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
 #define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
