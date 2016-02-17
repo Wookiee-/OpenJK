@@ -222,7 +222,7 @@ keyname_t keynames[MAX_KEYS] =
 	{ 0xa4, 0,    "SHIFT_KP_ENTER", A_KP_ENTER, false					},
 	{ L'\u00A5', L'\u00A5', NULL, A_YEN, false		  		}, // yen symbol
 	{ 0xa6, 0xa6, "MOUSE3", A_MOUSE3, false								},
-	{ 0xa7, 0xa7, "MOUSE4", A_MOUSE4, false								},
+	{ 0xa7, 0xa7, "SECTION", A_SECTION, false								},
 	{ 0xa8, 0xa8, "MOUSE5", A_MOUSE5, false								},
 	{ L'\u00A9', L'\u00A9', NULL, A_COPYRIGHT, false 		}, // copyright symbol
 	{ 0xaa, 0xaa, "UPARROW", A_CURSOR_UP, false							},
@@ -230,7 +230,7 @@ keyname_t keynames[MAX_KEYS] =
 	{ 0xac, 0xac, "LEFTARROW", A_CURSOR_LEFT, false						},
 	{ 0xad, 0xad, "RIGHTARROW", A_CURSOR_RIGHT, false					},
 	{ L'\u00AE', L'\u00AE', NULL, A_REGISTERED, false		}, // registered trademark symbol
-	{ 0xaf, 0,	  NULL, A_UNDEFINED_7, false							},
+	{ 0xaf, 0xaf,	  "MOUSE4", A_MOUSE4, false							}, // move mouse 4 here because 0xa7 is use by french mac keyboard
 	{ 0xb0, 0,	  NULL, A_UNDEFINED_8, false							},
 	{ 0xb1, 0,	  NULL, A_UNDEFINED_9, false							},
 	{ 0xb2, 0,	  NULL, A_UNDEFINED_10, false							},

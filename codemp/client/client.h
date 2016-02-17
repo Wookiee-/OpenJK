@@ -326,6 +326,9 @@ typedef struct clientStatic_s {
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
+	qhandle_t	recordingShader;
+	
+	float		ratioFix;
 } clientStatic_t;
 
 #define	CON_TEXTSIZE	0x30000 //was 32768
@@ -373,6 +376,8 @@ extern	cvar_t	*cl_showSend;
 extern	cvar_t	*cl_timeNudge;
 extern	cvar_t	*cl_showTimeDelta;
 extern	cvar_t	*cl_freezeDemo;
+
+extern	cvar_t	*cl_drawRecording;
 
 extern	cvar_t	*cl_yawspeed;
 extern	cvar_t	*cl_pitchspeed;
@@ -472,12 +477,9 @@ void CL_InitInput (void);
 void CL_ShutdownInput(void);
 void CL_SendCmd (void);
 void CL_ClearState (void);
-void CL_ReadPackets (void);
 
 void CL_WritePacket( void );
 void IN_CenterView (void);
-
-void CL_VerifyCode( void );
 
 float CL_KeyState (kbutton_t *key);
 const char *Key_KeynumToString( int keynum/*, qboolean bTranslate */ ); //note: translate is only called for menu display not configs
@@ -558,8 +560,6 @@ void CIN_SetExtents (int handle, int x, int y, int w, int h);
 void CIN_SetLooping (int handle, qboolean loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
-
-void CL_UpdateHotSwap(void);
 
 //
 // cl_cgame.c
