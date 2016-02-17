@@ -244,6 +244,9 @@ extern cvar_t	*r_saveFontData;
 
 extern cvar_t	*r_marksOnTriangleMeshes;
 
+//DT EDIT: Needed by tr_font.cpp
+extern cvar_t	*r_aspectCorrectFonts;
+
 extern cvar_t	*r_aviMotionJpegQuality;
 extern cvar_t	*r_screenshotJpegQuality;
 
@@ -2292,6 +2295,9 @@ extern	cvar_t	*r_debugSort;
 extern	cvar_t	*r_printShaders;
 
 extern cvar_t	*r_marksOnTriangleMeshes;
+
+//DT EDIT: Needed by tr_font.cpp
+extern cvar_t	*r_aspectCorrectFonts;
 
 extern cvar_t	*r_dynamicGlow;
 extern cvar_t	*r_dynamicGlowPasses;
