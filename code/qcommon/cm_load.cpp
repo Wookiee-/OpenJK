@@ -24,6 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cmodel.c -- model loading
 
 #include "cm_local.h"
+#include "qcommon/ojk_saved_game.h"
+#include "qcommon/ojk_saved_game_helper.h"
 
 #ifdef BSPC
 void SetPlaneSignbits (cplane_t *out) {
@@ -1155,39 +1157,25 @@ void CM_GetWorldBounds ( vec3_t mins, vec3_t maxs )
 
 int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 {
-	cmodel_t	*cmod;
-	int			contents = 0;
-	int			i;
-
-	if (!cm)
-	{
+	if ( !cm ) {
 		cm = &cmg;
 	}
 
-	cmod = CM_ClipHandleToModel( model, &cm );
+	int contents = 0;
+	const cmodel_t *cmod = CM_ClipHandleToModel( model, &cm );
+	for ( int i = 0; i < cmod->leaf.numLeafBrushes; i++ ) {
+		int brushNum = cm->leafbrushes[cmod->leaf.firstLeafBrush + i];
+		contents |= cm->brushes[brushNum].contents;
+	}
 
-	//MCG ADDED - return the contents, too
-	if( cmod->leaf.numLeafBrushes )		// check for brush
-	{
-		int brushNum;
-		for ( i = cmod->leaf.firstLeafBrush; i < cmod->leaf.firstLeafBrush+cmod->leaf.numLeafBrushes; i++ )
-		{
-			brushNum = cm->leafbrushes[i];
-			contents |= cm->brushes[brushNum].contents;
+	for ( int i = 0; i < cmod->leaf.numLeafSurfaces; i++ ) {
+		int surfaceNum = cm->leafsurfaces[cmod->leaf.firstLeafSurface + i];
+		if ( cm->surfaces[surfaceNum] ) {
+			// HERNH?  How could we have a null surf within our cmod->leaf.numLeafSurfaces?
+			contents |= cm->surfaces[surfaceNum]->contents;
 		}
 	}
-	if( cmod->leaf.numLeafSurfaces )	// if not brush, check for patch
-	{
-		int surfaceNum;
-		for ( i = cmod->leaf.firstLeafSurface; i < cmod->leaf.firstLeafSurface+cmod->leaf.numLeafSurfaces; i++ )
-		{
-			surfaceNum = cm->leafsurfaces[i];
-			if ( cm->surfaces[surfaceNum] != NULL )
-			{//HERNH?  How could we have a null surf within our cmod->leaf.numLeafSurfaces?
-				contents |= cm->surfaces[surfaceNum]->contents;
-			}
-		}
-	}
+
 	return contents;
 }
 
@@ -1213,9 +1201,15 @@ Writes the portal state to a savegame file
 qboolean SG_Append(unsigned int chid, const void *data, int length);
 int SG_Read(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
 
-void CM_WritePortalState ()
+void CM_WritePortalState()
 {
-	SG_Append(INT_ID('P','R','T','S'), (void *)cmg.areaPortals, cmg.numAreas * cmg.numAreas * sizeof( *cmg.areaPortals ));
+	ojk::SavedGameHelper saved_game(
+		&ojk::SavedGame::get_instance());
+
+	saved_game.write_chunk<int32_t>(
+		INT_ID('P', 'R', 'T', 'S'),
+		::cmg.areaPortals,
+		::cmg.numAreas * ::cmg.numAreas);
 }
 
 /*
@@ -1226,9 +1220,15 @@ Reads the portal state from a savegame file
 and recalculates the area connections
 ===================
 */
-void	CM_ReadPortalState ()
+void CM_ReadPortalState()
 {
-	SG_Read(INT_ID('P','R','T','S'), (void *)cmg.areaPortals, cmg.numAreas * cmg.numAreas * sizeof( *cmg.areaPortals ));
+	ojk::SavedGameHelper saved_game(
+		&ojk::SavedGame::get_instance());
+
+	saved_game.read_chunk<int32_t>(
+		INT_ID('P', 'R', 'T', 'S'),
+		::cmg.areaPortals,
+		::cmg.numAreas * ::cmg.numAreas);
+
 	CM_FloodAreaConnections (cmg);
 }
-

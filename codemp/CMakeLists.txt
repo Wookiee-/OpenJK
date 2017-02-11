@@ -233,6 +233,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/huffman.cpp"
 		"${MPDir}/qcommon/md4.cpp"
 		"${MPDir}/qcommon/md5.cpp"
+		"${MPDir}/qcommon/md5.h"
 		"${MPDir}/qcommon/MiniHeap.h"
 		"${MPDir}/qcommon/msg.cpp"
 		"${MPDir}/qcommon/matcomp.h"
@@ -240,7 +241,6 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/net_chan.cpp"
 		"${MPDir}/qcommon/net_ip.cpp"
 		"${MPDir}/qcommon/persistence.cpp"
-		"${MPDir}/qcommon/q_math.cpp"
 		"${MPDir}/qcommon/q_shared.cpp"
 		"${MPDir}/qcommon/qcommon.h"
 		"${MPDir}/qcommon/qfiles.h"
@@ -255,6 +255,8 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/timing.h"
 		"${MPDir}/qcommon/vm.cpp"
 		"${MPDir}/qcommon/z_memman_pc.cpp"
+
+		${SharedCommonFiles}
 		)
 	if(WIN32)
 		set(MPEngineAndDedCommonFiles ${MPEngineAndDedCommonFiles})
@@ -312,6 +314,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/server/server.h"
 		"${MPDir}/server/sv_bot.cpp"
 		"${MPDir}/server/sv_ccmds.cpp"
+		"${MPDir}/server/sv_challenge.cpp"
 		"${MPDir}/server/sv_client.cpp"
 		"${MPDir}/server/sv_game.cpp"
 		"${MPDir}/server/sv_init.cpp"
@@ -374,22 +377,17 @@ if(BuildMPEngine)
 	endif()
 
 	if(UseInternalSDL2)
-		if(MSVC14)
-			set(MSVC_SUFFIX "_2015")
-		else()
-			set(MSVC_SUFFIX "")
-		endif()
 		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 			set(MPEngineLibraries
 				${MPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x86${MSVC_SUFFIX}/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x86${MSVC_SUFFIX}/SDL2.lib
+				${OpenJKLibDir}/SDL2/lib/x86/SDL2main.lib
+				${OpenJKLibDir}/SDL2/lib/x86/SDL2.lib
 				)
 		else()
 			set(MPEngineLibraries
 				${MPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x64${MSVC_SUFFIX}/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x64${MSVC_SUFFIX}/SDL2.lib
+				${OpenJKLibDir}/SDL2/lib/x64/SDL2main.lib
+				${OpenJKLibDir}/SDL2/lib/x64/SDL2.lib
 				)
 		endif()
 
@@ -562,11 +560,11 @@ if(BuildMPEngine)
 		if(UseInternalSDL2)
 			if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 				set(MPEngineExtraInstallFiles
-					${OpenJKLibDir}/SDL2/bin/x86${MSVC_SUFFIX}/SDL2.dll
+					${OpenJKLibDir}/SDL2/bin/x86/SDL2.dll
 					)
 			else()
 				set(MPEngineExtraInstallFiles
-					${OpenJKLibDir}/SDL2/bin/x64${MSVC_SUFFIX}/SDL2.dll
+					${OpenJKLibDir}/SDL2/bin/x64/SDL2.dll
 					)
 			endif()
 		endif()

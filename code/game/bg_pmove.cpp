@@ -103,7 +103,7 @@ extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 extern qboolean WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern float G_ForceWallJumpStrength( void );
-extern int G_CheckRollSafety( gentity_t *self, int anim, float testDist );
+extern qboolean G_CheckRollSafety( gentity_t *self, int anim, float testDist );
 extern saberMoveName_t PM_CheckDualSpinProtect( void );
 extern saberMoveName_t PM_CheckPullAttack( void );
 extern qboolean JET_Flying( gentity_t *self );
@@ -3690,7 +3690,6 @@ int PM_GetLandingAnim( void )
 			//stick landings some
 			pm->ps->velocity[0] *= 0.5f;
 			pm->ps->velocity[1] *= 0.5f;
-			Com_Printf( "sticking landing\n" );
 		}
 		break;
 	case BOTH_JUMPBACK1:
