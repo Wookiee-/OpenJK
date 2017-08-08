@@ -758,13 +758,16 @@ Loads the ambient sound sets and prepares to play them when needed
 -------------------------
 */
 
-void AS_Init( void )
+void AS_Init( qboolean restart )
 {
 	if (!aSets)
 	{
 		numSets = 0;
 
-		pMap = new namePrecache_m;
+		if (!restart)
+		{
+			pMap = new namePrecache_m;
+		}
 
 		//Setup the structure
 		aSets = new CSetGroup();
@@ -798,9 +801,9 @@ Called on the client side to load and precache all the ambient sound sets
 -------------------------
 */
 
-void AS_ParseSets( void )
+void AS_ParseSets( qboolean restart )
 {
-	AS_Init();
+	AS_Init(restart);
 
 	//Parse all the sets
 	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == qfalse )
@@ -875,6 +878,19 @@ void AS_FreePartial(void)
 		delete pMap;
 		pMap = new namePrecache_m;
 	}
+}
+
+/*
+-------------------------
+AS_Restart
+
+Restarts the ambient sound system
+-------------------------
+*/
+void AS_Restart()
+{
+	AS_Free();
+	AS_ParseSets(qtrue);
 }
 
 /*

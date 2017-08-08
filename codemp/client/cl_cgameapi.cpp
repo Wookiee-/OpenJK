@@ -1078,7 +1078,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case CG_AS_PARSESETS:
-		AS_ParseSets();
+		AS_ParseSets(qfalse);
 		return 0;
 
 	case CG_AS_ADDPRECACHEENTRY:
@@ -1694,6 +1694,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 // Stub function for old RMG system.
 static void RE_InitRendererTerrain ( const char * /*info*/ ) {}
 
+void AS_ParseSetsExport() { AS_ParseSets(qfalse); }
+
 void CL_BindCGame( void ) {
 	static cgameImport_t cgi;
 	cgameExport_t		*ret;
@@ -1759,7 +1761,7 @@ void CL_BindCGame( void ) {
 		cgi.S_UpdateAmbientSet					= S_UpdateAmbientSet;
 		cgi.AS_AddPrecacheEntry					= AS_AddPrecacheEntry;
 		cgi.AS_GetBModelSound					= AS_GetBModelSound;
-		cgi.AS_ParseSets						= AS_ParseSets;
+		cgi.AS_ParseSets						= AS_ParseSetsExport;
 		cgi.R_AddAdditiveLightToScene			= re->AddAdditiveLightToScene;
 		cgi.R_AddDecalToScene					= re->AddDecalToScene;
 		cgi.R_AddLightToScene					= re->AddLightToScene;

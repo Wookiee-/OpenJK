@@ -443,7 +443,7 @@ void S_SoundInfo_f(void) {
 S_Init
 ================
 */
-void S_Init( void ) {
+void S_Init( qboolean restart ) {
 	cvar_t	*cv;
 	qboolean	r;
 
@@ -640,7 +640,7 @@ void S_Init( void ) {
 
 	Com_Printf("\n--- ambient sound initialization ---\n");
 
-	AS_Init();
+	AS_Init(restart);
 }
 
 // only called from snd_restart. QA request...

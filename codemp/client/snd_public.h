@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/qcommon.h"
 
-void S_Init( void );
+void S_Init( qboolean restart );
 void S_Shutdown( void );
 
 // if origin is NULL, the sound will be dynamically sourced from the entity

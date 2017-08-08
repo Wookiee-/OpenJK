@@ -1247,7 +1247,7 @@ handles will be invalid
 // extern void S_UnCacheDynamicMusic( void );
 void CL_Snd_Restart_f( void ) {
 	S_Shutdown();
-	S_Init();
+	S_Init(qtrue);
 
 //	S_FreeAllSFXMem();			// These two removed by BTO (VV)
 //	S_UnCacheDynamicMusic();	// S_Shutdown() already does this!
@@ -1259,6 +1259,9 @@ void CL_Snd_Restart_f( void ) {
 
 	extern void S_RestartMusic( void );
 	S_RestartMusic();
+
+	extern void AS_Restart();
+	AS_Restart();
 }
 
 
@@ -2318,7 +2321,7 @@ void CL_StartHunkUsers( void ) {
 
 	if ( !cls.soundStarted ) {
 		cls.soundStarted = qtrue;
-		S_Init();
+		S_Init(qfalse);
 	}
 
 	if ( !cls.soundRegistered ) {

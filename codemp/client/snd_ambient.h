@@ -108,10 +108,11 @@ protected:
 
 // Prototypes
 
-extern void AS_Init( void );
+extern void AS_Init( qboolean restart );
 extern void AS_Free( void );
-extern void AS_ParseSets( void );
+extern void AS_ParseSets( qboolean restart );
 extern void AS_AddPrecacheEntry( const char *name );
+extern void AS_Restart();
 
 extern void S_UpdateAmbientSet ( const char *name, vec3_t origin );
 extern int S_AddLocalSet( const char *name, vec3_t listener_origin, vec3_t origin, int entID, int time );

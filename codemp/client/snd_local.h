@@ -50,7 +50,7 @@ void S_AL_MuteAllSounds(qboolean bMute);
 
 
 //from SND_AMBIENT
-extern void AS_Init( void );
+extern void AS_Init( qboolean restart );
 extern void AS_Free( void );
 
 
