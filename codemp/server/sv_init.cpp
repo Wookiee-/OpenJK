@@ -279,6 +279,7 @@ void SV_Startup( void ) {
 		// we don't need nearly as many when playing locally
 		svs.numSnapshotEntities = sv_maxclients->integer * 4 * MAX_SNAPSHOT_ENTITIES;
 	}
+	SV_ChallengeInit();
 	svs.initialized = qtrue;
 
 	// Don't respect sv_killserver unless a server is actually running
