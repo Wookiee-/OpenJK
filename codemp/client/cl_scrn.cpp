@@ -264,7 +264,7 @@ static void SCR_DrawStringExt2( float x, float y, float charWidth, float charHei
 			s += 2;
 			continue;
 		}
-		SCR_DrawChar2( xx+2, y+2, charWidth, charHeight, *s );
+		SCR_DrawChar2( xx+1, y+1, charWidth, charHeight, *s );
 		xx += charWidth;
 		s++;
 	}
@@ -400,10 +400,10 @@ void SCR_DrawDemoRecording( void ) {
 			re->DrawStretchPic(0-size*ratio/1.84f, SCREEN_HEIGHT-size*1.92f, size*3*ratio, size*3, 0, 0, 1, 1, cls.recordingShader);
 		SCR_DrawStringExt2(0+(size+4)*ratio, SCREEN_HEIGHT-size-2, size*ratio, size, "REC", colour, qtrue, qfalse);
 	} else if (cl_drawRecording->integer) {
-		const float size = 8.0f;
+		const float size = 6.0f;
 		pos = FS_FTell(clc.demofile);
 		Com_sprintf(string, sizeof(string), "RECORDING %s: %ik", clc.demoName, pos / 1024);
-		SCR_DrawStringExt2(SCREEN_WIDTH/2.0f-strlen(string)*(size/2.0f)*ratio, 20.0f, size*ratio, size, string, g_color_table[7], qtrue, qfalse);
+		SCR_DrawStringExt2(3*ratio, SCREEN_HEIGHT-size-3, size*ratio*0.8f, size, string, g_color_table[7], qtrue, qfalse);
 	}
 }
 

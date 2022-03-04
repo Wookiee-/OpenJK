@@ -1550,10 +1550,10 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 			item->window.offsetTime = time;
 			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = abs(rectTo->x - rectFrom->x) / amt;
-			item->window.rectEffects2.y = abs(rectTo->y - rectFrom->y) / amt;
-			item->window.rectEffects2.w = abs(rectTo->w - rectFrom->w) / amt;
-			item->window.rectEffects2.h = abs(rectTo->h - rectFrom->h) / amt;
+			item->window.rectEffects2.x = fabs(rectTo->x - rectFrom->x) / amt;
+			item->window.rectEffects2.y = fabs(rectTo->y - rectFrom->y) / amt;
+			item->window.rectEffects2.w = fabs(rectTo->w - rectFrom->w) / amt;
+			item->window.rectEffects2.h = fabs(rectTo->h - rectFrom->h) / amt;
 
 			Item_UpdatePosition(item);
 		}
@@ -1601,17 +1601,17 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 
 //				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
 
-				modelptr->g2maxsEffect[0] = abs(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
-				modelptr->g2maxsEffect[1] = abs(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
-				modelptr->g2maxsEffect[2] = abs(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
+				modelptr->g2maxsEffect[0] = fabs(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
+				modelptr->g2maxsEffect[1] = fabs(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
+				modelptr->g2maxsEffect[2] = fabs(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
 
-				modelptr->g2minsEffect[0] = abs(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
-				modelptr->g2minsEffect[1] = abs(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
-				modelptr->g2minsEffect[2] = abs(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
+				modelptr->g2minsEffect[0] = fabs(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
+				modelptr->g2minsEffect[1] = fabs(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
+				modelptr->g2minsEffect[2] = fabs(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
 
 
-				modelptr->fov_Effectx = abs(modelptr->fov_x2 - modelptr->fov_x) / amt;
-				modelptr->fov_Effecty = abs(modelptr->fov_y2 - modelptr->fov_y) / amt;
+				modelptr->fov_Effectx = fabs(modelptr->fov_x2 - modelptr->fov_x) / amt;
+				modelptr->fov_Effecty = fabs(modelptr->fov_y2 - modelptr->fov_y) / amt;
 			}
 		}
 	}
@@ -3370,7 +3370,7 @@ const char *Item_Multi_Setting(itemDef_t *item) {
  			}
  		}
 	}
-	return "";
+	return "@MENUS_CUSTOM";
 }
 
 qboolean Item_Multi_HandleKey(itemDef_t *item, int key)
@@ -4284,7 +4284,22 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 
 		case A_F12:
 			if (DC->getCVarValue("developer")) {
-				DC->executeText(EXEC_APPEND, "screenshot\n");
+				switch ( DC->screenshotFormat ) {
+					case SSF_JPEG:
+						DC->executeText(EXEC_APPEND, "screenshot\n");
+						break;
+					case SSF_TGA:
+						DC->executeText(EXEC_APPEND, "screenshot_tga\n");
+						break;
+					case SSF_PNG:
+						DC->executeText(EXEC_APPEND, "screenshot_png\n");
+						break;
+					default:
+						if (DC->Print) {
+							DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
+						}
+						break;
+				}
 			}
 			break;
 		case A_KP_8:
@@ -6347,6 +6362,11 @@ void Item_Paint(itemDef_t *item)
 		} else {
 			item->window.flags |= WINDOW_VISIBLE;
 		}
+	}
+
+	if (item->disabled && item->disabledHidden)
+	{
+		return;
 	}
 
 	if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE)) {
@@ -8456,7 +8476,7 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 		}
 	}
 
-	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && item->cvarFlags & CVAR_HIDE ) {
+	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && (item->cvarFlags & CVAR_HIDE) ) {
 		if( item->parent )
 		{
 			menuDef_t *parent = (menuDef_t *)item->parent;

@@ -37,8 +37,10 @@ typedef enum netadrtype_s
 typedef struct netadr_s
 {
 	netadrtype_t	type;
-
-	byte		ip[4];
+	union {
+		byte		ip[4];
+		int32_t		ipi;
+	};
 	uint16_t	port;
 } netadr_t;
 
@@ -67,7 +69,8 @@ typedef enum {
 	SE_CHAR,	// evValue is an ascii char
 	SE_MOUSE,	// evValue and evValue2 are reletive signed x / y moves
 	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE	// evPtr is a char*
+	SE_CONSOLE,	// evPtr is a char*
+	SE_MAX
 } sysEventType_t;
 
 typedef struct sysEvent_s {
@@ -200,5 +203,6 @@ void		WIN_Present( window_t *window );
 void		WIN_SetGamma( glconfig_t *glConfig, byte red[256], byte green[256], byte blue[256] );
 void		WIN_Shutdown( void );
 void *		WIN_GL_GetProcAddress( const char *proc );
+qboolean	WIN_GL_ExtensionSupported( const char *extension );
 
 uint8_t ConvertUTF32ToExpectedCharset( uint32_t utf32 );

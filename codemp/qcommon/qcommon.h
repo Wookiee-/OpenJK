@@ -216,8 +216,8 @@ PROTOCOL
 #define	UPDATE_SERVER_NAME			"master.moviebattles.org"
 #define MASTER_SERVER_NAME			"master.moviebattles.org"
 
-#define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
-#define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
+#define	BACKUP_UPDATE_SERVER_NAME	"master2.moviebattles.org"
+#define BACKUP_MASTER_SERVER_NAME	"master2.moviebattles.org"
 
 #define	PORT_MASTER			29060
 #define	PORT_UPDATE			29061
@@ -610,6 +610,7 @@ fileHandle_t	FS_FOpenFileWrite( const char *qpath, qboolean safe=qtrue );
 
 int		FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
+fileHandle_t FS_SV_FOpenFileAppend( const char *filename );
 int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
 void	FS_SV_Rename( const char *from, const char *to, qboolean safe );
 long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );

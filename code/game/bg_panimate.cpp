@@ -4373,12 +4373,12 @@ PM_AnimLength
 -------------------------
 */
 
-int PM_AnimLength( int index, animNumber_t anim )
-{
-	if ( ValidAnimFileIndex( index ) == false )
+int PM_AnimLength( int index, animNumber_t anim ) {
+	if ( !ValidAnimFileIndex( index ) || (int)anim < 0 || anim >= MAX_ANIMATIONS ) {
 		return 0;
+	}
 
-	return level.knownAnimFileSets[index].animations[anim].numFrames * abs(level.knownAnimFileSets[index].animations[anim].frameLerp);
+	return level.knownAnimFileSets[index].animations[anim].numFrames * abs( level.knownAnimFileSets[index].animations[anim].frameLerp );
 }
 
 /*
@@ -4717,7 +4717,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 	const bool	animSync	  = (g_synchSplitAnims->integer!=0 && !animRestart);
 	float	animCurrent	  = (-1.0f);
 	float	animSpeed	  = (50.0f / curAnim.frameLerp * timeScaleMod); // animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
-	const float	animFPS		  = (fabsf(curAnim.frameLerp));
+	const float	animFPS		  = (::abs(curAnim.frameLerp));
 	const int		animDurMSec	  = (int)(((curAnim.numFrames - 1) * animFPS) / timeScaleMod);
 	const int		animHoldMSec  = ((animHoldless && timeScaleMod==1.0f)?((animDurMSec>1)?(animDurMSec-1):(animFPS)):(animDurMSec));
 	int		animFlags	  = (curAnim.loopFrames!=-1)?(BONE_ANIM_OVERRIDE_LOOP):(BONE_ANIM_OVERRIDE_FREEZE);

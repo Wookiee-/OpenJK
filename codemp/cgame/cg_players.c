@@ -366,6 +366,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	if ( len >= sizeof( text ) - 1 )
 	{
 		Com_Printf( "File %s too long\n", sfilename );
+		trap->FS_Close( f );
 		return qfalse;
 	}
 
@@ -10117,7 +10118,7 @@ stillDoSaber:
 					}
 					else
 					{
-						trap->G2API_InitGhoul2Model(&saberEnt->ghoul2, "models/weapons2/saber/saber_w.glm", 0, 0, 0, 0, 0);
+						trap->G2API_InitGhoul2Model(&saberEnt->ghoul2, DEFAULT_SABER_MODEL, 0, 0, 0, 0, 0);
 					}
 					//trap->G2API_DuplicateGhoul2Instance(cent->ghoul2, &saberEnt->ghoul2);
 

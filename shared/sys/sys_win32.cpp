@@ -19,6 +19,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+#include "qcommon/q_version.h"
 #include "sys_local.h"
 #include <direct.h>
 #include <io.h>
@@ -156,8 +157,8 @@ char *Sys_GetCurrentUser( void )
 */
 char *Sys_DefaultHomePath( void )
 {
-#if defined(_PORTABLE_VERSION)
-	Com_Printf( "Portable install requested, skipping homepath support\n" );
+#if defined(BUILD_PORTABLE)
+	//Com_Printf( "Portable install requested, skipping homepath support\n" );
 	return NULL;
 #else
 	if ( !homePath[0] )
@@ -505,7 +506,7 @@ UnpackDLLResult Sys_UnpackDLL(const char *name)
 {
 	UnpackDLLResult result = {};
 	void *data;
-	int len = FS_ReadFile(name, &data);
+	long len = FS_ReadFile(name, &data);
 
 	if (len >= 1)
 	{
@@ -557,6 +558,9 @@ void Sys_PlatformInit( void ) {
 	}
 	else
 		timerResolution = 0;
+
+	//prevent "Not Responding" interfering with the load screen or stalling client loading entirely
+	DisableProcessWindowsGhosting();
 }
 
 /*

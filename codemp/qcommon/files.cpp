@@ -818,6 +818,46 @@ fileHandle_t FS_SV_FOpenFileWrite( const char *filename ) {
 
 /*
 ===========
+FS_SV_FOpenFileAppend
+
+===========
+*/
+fileHandle_t FS_SV_FOpenFileAppend( const char *filename ) {
+	char			*ospath;
+	fileHandle_t	f;
+
+	FS_AssertInitialised();
+
+	f = FS_HandleForFile();
+	fsh[f].zipFile = qfalse;
+
+	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
+
+	ospath = FS_BuildOSPath( fs_homepath->string, filename, "" );
+	ospath[strlen(ospath)-1] = '\0';
+
+	if ( fs_debug->integer ) {
+		Com_Printf( "FS_SV_FOpenFileAppend: %s\n", ospath );
+	}
+
+	FS_CheckFilenameIsMutable( ospath, __func__ );
+
+	if( FS_CreatePath( ospath ) ) {
+		return 0;
+	}
+
+	fsh[f].handleFiles.file.o = fopen( ospath, "ab" );
+	fsh[f].handleSync = qfalse;
+
+	if (!fsh[f].handleFiles.file.o) {
+		f = 0;
+	}
+
+	return f;
+}
+
+/*
+===========
 FS_SV_FOpenFileRead
 search for a file somewhere below the home path, base path or cd path
 we search in that order, matching FS_SV_FOpenFileRead order
@@ -1267,6 +1307,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 	//unz_s			*zfi;
 	//void			*temp;
 	int				l;
+	bool			isUserConfig = false;
 
 	hash = 0;
 
@@ -1300,6 +1341,8 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 		return -1;
 	}
 
+	isUserConfig = !Q_stricmp( filename, "autoexec.cfg" ) || !Q_stricmp( filename, Q3CONFIG_CFG );
+
 	//
 	// search through the path, one element at a time
 	//
@@ -1327,6 +1370,11 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 			if ( search->pack && search->pack->hashTable[hash] ) {
 				// disregard if it doesn't match one of the allowed pure pak files
 				if ( !FS_PakIsPure(search->pack) ) {
+					continue;
+				}
+
+				// autoexec.cfg and openjk.cfg can only be loaded outside of pk3 files.
+				if ( isUserConfig ) {
 					continue;
 				}
 
@@ -3355,6 +3403,18 @@ void FS_Startup( const char *gameName ) {
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED, "(Read/Write) Location for user generated files" );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO, "Mod directory" );
 
+	if (strcmp(fs_homepath->string, ".") == 0) {
+		Com_Printf("Homepath: %s\n", fs_basepath->string);
+	}
+	else {
+		if (fs_homepath->string[0]) {
+			Com_Printf("Homepath: %s\n", fs_homepath->string);
+		}
+		else {
+			Com_Printf( S_COLOR_YELLOW "Homepath is empty, user generated files will be on the root of the drive!\n");
+		}
+	}
+
 	fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", CVAR_INIT|CVAR_PROTECTED, "Prioritize directories before paks if not pure" );
 
 	// add search path elements in reverse priority order (lowest priority first)
@@ -3779,6 +3839,9 @@ void FS_InitFilesystem( void ) {
 #ifdef MACOS_X
 	Com_StartupVariable( "fs_apppath" );
 #endif
+
+	if (Cvar_VariableString("fs_game") == "")
+		Cvar_Set("fs_game", "MBII");
 
 	if(!FS_FilenameCompare(Cvar_VariableString("fs_game"), BASEGAME))
 		Cvar_Set("fs_game", "");

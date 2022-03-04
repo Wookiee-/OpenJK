@@ -28,6 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "bg_saga.h"
 #include "b_local.h"
+#include "qcommon/q_version.h"
+
+NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
+void (*Com_Printf)( const char *msg, ... );
 
 level_locals_t	level;
 
@@ -141,9 +145,9 @@ void G_CacheGametype( void )
 		else
 			level.gametype = gt;
 	}
-	else if ( g_gametype.integer < 0 || level.gametype >= GT_MAX_GAME_TYPE )
+	else if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE )
 	{
-		trap->Print( "g_gametype %i is out of range, defaulting to 0\n", level.gametype );
+		trap->Print( "g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer );
 		level.gametype = GT_FFA;
 	}
 	else
@@ -167,7 +171,7 @@ G_InitGame
 */
 extern void RemoveAllWP(void);
 extern void BG_ClearVehicleParseParms(void);
-gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+gentity_t *SelectRandomDeathmatchSpawnPoint( qboolean isbot );
 void SP_info_jedimaster_start( gentity_t *ent );
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
@@ -193,7 +197,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	trap->Print ("------- Game Initialization -------\n");
 	trap->Print ("gamename: %s\n", GAMEVERSION);
-	trap->Print ("gamedate: %s\n", __DATE__);
+	trap->Print ("gamedate: %s\n", SOURCE_DATE);
 
 	srand( randomSeed );
 
@@ -411,7 +415,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		if ( i == level.num_entities ) {
 			// no JM saber found. drop one at one of the player spawnpoints
-			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint();
+			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint( qfalse );
 
 			if( !spawnpoint ) {
 				trap->Error( ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n" );

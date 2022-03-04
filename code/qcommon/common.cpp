@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "qcommon/q_version.h"
 #include "sstring.h"	// to get Gil's string class, because MS's doesn't compile properly in here
 #include "stringed_ingame.h"
 #include "stv_version.h"
@@ -426,9 +427,9 @@ void Com_StartupVariable( const char *match ) {
 		if(!match || !strcmp(s, match))
 		{
 			if((unsigned)Cvar_Flags(s) == CVAR_NONEXISTENT)
-				Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED);
+				Cvar_Get(s, Cmd_ArgsFrom(2), CVAR_USER_CREATED);
 			else
-				Cvar_Set2(s, Cmd_Argv(2), qfalse);
+				Cvar_Set2(s, Cmd_ArgsFrom(2), qfalse);
 		}
 	}
 }
@@ -1050,7 +1051,7 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	char	*s;
 
-	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, SOURCE_DATE );
 
 	try {
 		Com_InitZoneMemory();
@@ -1115,10 +1116,10 @@ void Com_Init( char *commandLine ) {
 		com_skippingcin = Cvar_Get ("skippingCinematic", "0", CVAR_ROM);
 		com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
 
-		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE );
-		com_busyWait = Cvar_Get( "com_busyWait", "0", CVAR_ARCHIVE );
+		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE_ND );
+		com_busyWait = Cvar_Get( "com_busyWait", "0", CVAR_ARCHIVE_ND );
 
-		com_bootlogo = Cvar_Get( "com_bootlogo", "1", CVAR_ARCHIVE );
+		com_bootlogo = Cvar_Get( "com_bootlogo", "1", CVAR_ARCHIVE_ND );
 
 		if ( com_developer && com_developer->integer ) {
 			Cmd_AddCommand ("error", Com_Error_f);
@@ -1126,7 +1127,7 @@ void Com_Init( char *commandLine ) {
 			Cmd_AddCommand ("freeze", Com_Freeze_f);
 		}
 
-		s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+		s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, SOURCE_DATE );
 		com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 #ifdef JK2_MODE
@@ -1243,6 +1244,12 @@ void Com_WriteConfig_f( void ) {
 	if(!COM_CompareExtension(filename, ".cfg"))
 	{
 		Com_Printf( "Com_WriteConfig_f: Only the \".cfg\" extension is supported by this command!\n" );
+		return;
+	}
+
+	if(!FS_FilenameCompare(filename, "mpdefault.cfg") || !FS_FilenameCompare(filename, "default.cfg"))
+	{
+		Com_Printf( S_COLOR_YELLOW "Com_WriteConfig_f: The filename \"%s\" is reserved! Please choose another name.\n", filename );
 		return;
 	}
 

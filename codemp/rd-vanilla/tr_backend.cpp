@@ -61,7 +61,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		ri->Printf( PRINT_ALL, S_COLOR_YELLOW  "GL_Bind: NULL image\n" );
+		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "GL_Bind: NULL image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -1203,7 +1203,7 @@ void	RB_SetGL2D (void) {
 	qglDisable( GL_CLIP_PLANE0 );
 
 	// set time for 2D shaders
-	backEnd.refdef.time = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
+	backEnd.refdef.time = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
@@ -1235,7 +1235,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
-		start = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
+		start = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 	}
 
 	// make sure rows and cols are powers of 2
@@ -1264,8 +1264,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 
 	if ( r_speeds->integer ) {
-		end = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
-		ri->Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
+		end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
 	RB_SetGL2D();
@@ -1509,6 +1509,10 @@ const void *RB_RotatePic2 ( const void *data )
 	const rotatePicCommand_t	*cmd;
 	image_t *image;
 	shader_t *shader;
+	float ratio = 1.0f;
+
+	if (r_aspectCorrectRotatePic2->integer)
+		ratio = ((float)(SCREEN_WIDTH * glConfig.vidHeight) / (float)(SCREEN_HEIGHT * glConfig.vidWidth));
 
 	cmd = (const rotatePicCommand_t *)data;
 
@@ -1542,8 +1546,8 @@ const void *RB_RotatePic2 ( const void *data )
 			float c = cosf( angle );
 
 			matrix3_t m = {
-				{ c, s, 0.0f },
-				{ -s, c, 0.0f },
+				{ c * ratio, s, 0.0f },
+				{ -s * ratio, c, 0.0f },
 				{ cmd->x, cmd->y, 1.0f }
 			};
 
@@ -1785,7 +1789,7 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-//	start = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
+//	start = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 
 
 	int i=0;
@@ -1819,8 +1823,8 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-//	end = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
-//	ri->Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
+//	end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+//	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
 }
 
 static void RB_GammaCorrectRender()
@@ -1919,7 +1923,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
     GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
-    ri->WIN_Present(&window);
+    ri.WIN_Present(&window);
 
 	backEnd.projection2D = qfalse;
 
@@ -1956,7 +1960,7 @@ extern const void *R_DrawWireframeAutomap(const void *data); //tr_world.cpp
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
 
-	t1 = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
+	t1 = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));
@@ -1995,7 +1999,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering
-			t2 = ri->Milliseconds()*ri->Cvar_VariableValue( "timescale" );
+			t2 = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 			backEnd.pc.msec = t2 - t1;
 			return;
 		}
