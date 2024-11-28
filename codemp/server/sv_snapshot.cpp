@@ -362,7 +362,12 @@ SV_AddEntitiesVisibleFromPoint
 */
 float g_svCullDist = -1.0f;
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+#ifndef DEDICATED
+									snapshotEntityNumbers_t *eNums, qboolean portal )
+#else
+									snapshotEntityNumbers_t *eNums, qboolean portal, qboolean skipDuelCull )
+#endif
+{
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -425,11 +430,11 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 				continue;
 			}
 		}
-
-		if (DuelCull(SV_GentityNum(frame->ps.clientNum), ent) == 1) {
+#ifdef DEDICATED
+		if (!skipDuelCull && DuelCull(SV_GentityNum(frame->ps.clientNum), ent) == 1) {
 			continue;
-		}	
-
+		}
+#endif
 		svEnt = SV_SvEntityForGentity( ent );
 
 		// don't double add an entity through portals
@@ -526,7 +531,11 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
+#ifndef DEDICATED
 			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+#else
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, skipDuelCull);
+#endif
 		}
 	}
 }
@@ -613,7 +622,12 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
+
+#ifndef DEDICATED
 	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+#else
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->disableDuelCull );
+#endif
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -636,10 +650,11 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
 		*state = ent->s;
 		
+#ifdef DEDICATED
 		if (DuelCull(client->gentity, ent)) {
 			state->solid = 0;
 		}
-		
+#endif		
 		svs.nextSnapshotEntities++;
 		// this should never hit, map should always be restarted first in SV_Frame
 		if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) {
