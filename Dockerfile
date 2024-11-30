@@ -15,7 +15,7 @@ RUN mkdir /usr/src/openjk/build.i386 &&\
 	cd /usr/src/openjk/build.i386 &&\
 	cmake -DCMAKE_TOOLCHAIN_FILE=/usr/src/openjk/cmake/Toolchains/linux-i686.cmake \
 		-DCMAKE_INSTALL_PREFIX=/opt \
-		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++\
 		.. &&\
 	make mbiided.i386 &&\
 	make install
