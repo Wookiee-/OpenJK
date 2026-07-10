@@ -790,6 +790,9 @@ public:
 	int			inSpaceSuffocation;
 	int			inSpaceIndex;
 
+	// Tracks which entities have been hit in the current saber swing
+	int			saberHitEntityBitMask;
+	int			saberLastAttackSequence;
 
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
@@ -855,6 +858,8 @@ public:
 		saved_game.write<float>(rocketTargetTime);
 		saved_game.write<int32_t>(inSpaceSuffocation);
 		saved_game.write<int32_t>(inSpaceIndex);
+		saved_game.write<int32_t>(saberHitEntityBitMask);
+		saved_game.write<int32_t>(saberLastAttackSequence);
 	}
 
 	void sg_import(
@@ -921,6 +926,8 @@ public:
 		saved_game.read<float>(rocketTargetTime);
 		saved_game.read<int32_t>(inSpaceSuffocation);
 		saved_game.read<int32_t>(inSpaceIndex);
+		saved_game.read<int32_t>(saberHitEntityBitMask);
+		saved_game.read<int32_t>(saberLastAttackSequence);
 	}
 }; // GClientBase
 

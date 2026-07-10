@@ -802,6 +802,9 @@ public:
 	vec3_t		pushVec;
 	int			pushVecTime;
 
+	// Tracks which entities have been hit in the current saber swing
+	int			saberHitEntityBitMask;
+	int			saberLastAttackSequence;
 
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
@@ -863,6 +866,8 @@ public:
 		saved_game.write<int32_t>(slopeRecalcTime);
 		saved_game.write<float>(pushVec);
 		saved_game.write<int32_t>(pushVecTime);
+		saved_game.write<int32_t>(saberHitEntityBitMask);
+		saved_game.write<int32_t>(saberLastAttackSequence);
 	}
 
 	void sg_import(
@@ -925,6 +930,8 @@ public:
 		saved_game.read<int32_t>(slopeRecalcTime);
 		saved_game.read<float>(pushVec);
 		saved_game.read<int32_t>(pushVecTime);
+		saved_game.read<int32_t>(saberHitEntityBitMask);
+		saved_game.read<int32_t>(saberLastAttackSequence);
 	}
 }; // gclient_t
 

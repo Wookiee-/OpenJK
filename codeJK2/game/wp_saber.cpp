@@ -768,6 +768,13 @@ qboolean WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags, 
 					continue;
 				}
 
+				// Single-hit enforcement: skip if already damaged this swing
+				if ( victim->s.number < MAX_CLIENTS &&
+					( ent->client->saberHitEntityBitMask & ( 1 << victim->s.number ) ) )
+				{
+					continue;
+				}
+
 				if ( victim->e_DieFunc == dieF_maglock_die )
 				{//*sigh*, special check for maglocks
 					vec3_t testFrom;
@@ -920,6 +927,10 @@ qboolean WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags, 
 								ent->client->sess.missionStats.otherAttacksCnt++;
 								break;
 							}
+						}
+						if ( victim->s.number < MAX_CLIENTS )
+						{
+							ent->client->saberHitEntityBitMask |= ( 1 << victim->s.number );
 						}
 						G_Damage( victim, ent, ent, dmgDir[i], dmgSpot[i], ceil(totalDmg[i]), dFlags, MOD_SABER, hitDismemberLoc[i] );
 #ifndef FINAL_BUILD
@@ -2522,6 +2533,13 @@ void WP_SaberDamageTrace( gentity_t *ent )
 	int			baseDFlags = 0;
 	qboolean	hit_wall = qfalse;
 	qboolean	brokenParry = qfalse;
+
+	// Reset hit tracking when a new swing begins
+	if ( ent->client->ps.saberAttackSequence != ent->client->saberLastAttackSequence )
+	{
+		ent->client->saberHitEntityBitMask = 0;
+		ent->client->saberLastAttackSequence = ent->client->ps.saberAttackSequence;
+	}
 
 	for ( int ven = 0; ven < MAX_SABER_VICTIMS; ven++ )
 	{

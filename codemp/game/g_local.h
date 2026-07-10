@@ -805,6 +805,10 @@ struct gclient_s {
 	// Server-side rollback history
 	entityHistoryFrame_t	positionHistory[64];
 	int						positionHistoryHead;
+
+	// Tracks which entities have been hit in the current saber swing
+	int						saberHitEntityBitMask;
+	int						saberLastAttackSequence;
 };
 
 //Interest points
