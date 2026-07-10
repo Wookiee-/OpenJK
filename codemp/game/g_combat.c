@@ -5734,3 +5734,73 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 
 	return hitClient;
 }
+
+/*
+====================
+G_RollbackWorldToTime
+
+Temporarily rewinds all other players to their positions at targetTime
+for lag-compensated collision checks. Call G_UnrollbackWorld to restore.
+====================
+*/
+static entityHistoryFrame_t savedOriginals[64];
+static int savedCount = 0;
+
+void G_RollbackWorldToTime( gentity_t *attacker, int targetTime ) {
+	savedCount = 0;
+	int i;
+	for ( i = 0; i < level.maxclients; i++ ) {
+		gentity_t *ent = &g_entities[i];
+		if ( !ent->inuse || !ent->client || ent == attacker ) continue;
+
+		int head = ent->positionHistoryHead;
+		int bestIdx = -1;
+		int j;
+		for ( j = 0; j < 64; j++ ) {
+			int idx = ( head - 1 - j + 64 * 64 ) % 64;
+			entityHistoryFrame_t *f = &ent->positionHistory[idx];
+			if ( f->time == 0 ) continue;
+			if ( f->time <= targetTime ) {
+				bestIdx = idx;
+				break;
+			}
+		}
+		if ( bestIdx < 0 ) continue;
+
+		entityHistoryFrame_t *hist = &ent->positionHistory[bestIdx];
+		VectorCopy( ent->r.currentOrigin, savedOriginals[savedCount].origin );
+		VectorCopy( ent->r.mins, savedOriginals[savedCount].mins );
+		VectorCopy( ent->r.maxs, savedOriginals[savedCount].maxs );
+		VectorCopy( ent->r.currentAngles, savedOriginals[savedCount].angles );
+		savedOriginals[savedCount].time = ent->s.number;
+		savedCount++;
+
+		VectorCopy( hist->origin, ent->r.currentOrigin );
+		VectorCopy( hist->mins, ent->r.mins );
+		VectorCopy( hist->maxs, ent->r.maxs );
+		VectorCopy( hist->angles, ent->r.currentAngles );
+		trap->LinkEntity( (sharedEntity_t *)ent );
+	}
+}
+
+/*
+====================
+G_UnrollbackWorld
+
+Restores all players to their current positions after a rollback trace.
+====================
+*/
+void G_UnrollbackWorld( void ) {
+	int i;
+	for ( i = 0; i < savedCount; i++ ) {
+		entityHistoryFrame_t *s = &savedOriginals[i];
+		gentity_t *ent = &g_entities[s->time];
+		if ( !ent->inuse ) continue;
+		VectorCopy( s->origin, ent->r.currentOrigin );
+		VectorCopy( s->mins, ent->r.mins );
+		VectorCopy( s->maxs, ent->r.maxs );
+		VectorCopy( s->angles, ent->r.currentAngles );
+		trap->LinkEntity( (sharedEntity_t *)ent );
+	}
+	savedCount = 0;
+}

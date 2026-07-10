@@ -3443,6 +3443,22 @@ void G_RunFrame( int levelTime ) {
 		iTimer_Queues);
 #endif
 
+	// Save position history for server-side rollback
+	{
+		int hi;
+		for ( hi = 0; hi < level.maxclients; hi++ ) {
+			gentity_t *hEnt = &g_entities[hi];
+			if ( !hEnt->inuse || !hEnt->client ) continue;
+			int head = hEnt->positionHistoryHead % 64;
+			hEnt->positionHistory[head].time = level.time;
+			VectorCopy( hEnt->r.currentOrigin, hEnt->positionHistory[head].origin );
+			VectorCopy( hEnt->r.mins, hEnt->positionHistory[head].mins );
+			VectorCopy( hEnt->r.maxs, hEnt->positionHistory[head].maxs );
+			VectorCopy( hEnt->r.currentAngles, hEnt->positionHistory[head].angles );
+			hEnt->positionHistoryHead++;
+		}
+	}
+
 	g_LastFrameTime = level.time;
 }
 

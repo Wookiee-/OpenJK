@@ -171,6 +171,14 @@ extern void *g2SaberInstance;
 extern qboolean gEscaping;
 extern int gEscapeTime;
 
+typedef struct {
+	int			time;
+	vec3_t		origin;
+	vec3_t		mins;
+	vec3_t		maxs;
+	vec3_t		angles;
+} entityHistoryFrame_t;
+
 struct gentity_s {
 	//rww - entstate must be first, to correspond with the bg shared entity structure
 	entityState_t	s;				// communicated by server to clients
@@ -793,6 +801,10 @@ struct gclient_s {
 		int		drainDebounce;
 		int		lightningDebounce;
 	} force;
+
+	// Server-side rollback history
+	entityHistoryFrame_t	positionHistory[64];
+	int						positionHistoryHead;
 };
 
 //Interest points
