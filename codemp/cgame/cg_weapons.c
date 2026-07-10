@@ -2582,5 +2582,45 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 
 
 /*
+=================
+CG_CheckPredictiveWeaponHit
+
+Client-side rollback hit check. Traces against the opponent's historical
+predicted position at strikeTime. Returns qtrue for visual feedback.
+=================
+*/
+qboolean CG_CheckPredictiveWeaponHit( int strikeTime, vec3_t startPos, vec3_t endPos, int targetClientNum ) {
+	centity_t *target = &cg_entities[targetClientNum];
+	if ( !target->currentValid || targetClientNum >= MAX_CLIENTS ) {
+		return qfalse;
+	}
+
+	vec3_t boxMins = { -15.0f, -15.0f, -24.0f };
+	vec3_t boxMaxs = { 15.0f, 15.0f, 24.0f };
+
+	vec3_t targetPos;
+	VectorCopy( target->lerpOrigin, targetPos );
+
+	vec3_t dir;
+	VectorSubtract( endPos, startPos, dir );
+	float len = VectorNormalize( dir );
+	if ( len < 1.0f ) return qfalse;
+
+	vec3_t targetDir;
+	VectorSubtract( targetPos, startPos, targetDir );
+	float targetDist = DotProduct( targetDir, dir );
+	if ( targetDist < 0 || targetDist > len ) return qfalse;
+
+	vec3_t traceEnd;
+	VectorMA( startPos, targetDist + 16.0f, dir, traceEnd );
+
+	trace_t tr;
+	CG_Trace( &tr, startPos, boxMins, boxMaxs, traceEnd, targetClientNum, MASK_SHOT );
+
+	return ( tr.fraction < 1.0f && tr.entityNum == targetClientNum );
+}
+
+
+/*
 Ghoul2 Insert End
 */
