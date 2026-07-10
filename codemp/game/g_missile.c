@@ -656,6 +656,31 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		if ( ent->damage ) {
 			vec3_t	velocity;
 			qboolean didDmg = qfalse;
+			qboolean projectileRollback = qfalse;
+
+			// Lag-compensated projectile hit
+			if ( other->client && other->health > 0 ) {
+				int projectileTime = ent->s.pos.trTime;
+				if ( projectileTime > 0 && projectileTime < level.time - 50 ) {
+					gentity_t *shooter = &g_entities[ent->r.ownerNum];
+					G_RollbackWorldToTime( shooter, projectileTime );
+					projectileRollback = qtrue;
+
+					// Re-check the trace from projectile spawn to present position
+					trace_t reTrace;
+					vec3_t launchOrigin;
+					BG_EvaluateTrajectory( &ent->s.pos, ent->s.pos.trTime, launchOrigin );
+					trap->Trace( &reTrace, launchOrigin, ent->r.mins, ent->r.maxs,
+						ent->r.currentOrigin, ent->s.number, MASK_SHOT, qfalse, 0, 0 );
+
+					if ( reTrace.fraction >= 1.0f || !g_entities[reTrace.entityNum].client ||
+						g_entities[reTrace.entityNum].health <= 0 ) {
+						G_UnrollbackWorld();
+						projectileRollback = qfalse;
+						return;
+					}
+				}
+			}
 
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
@@ -762,6 +787,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 		}
 	}
+
+	if ( projectileRollback ) {
+		G_UnrollbackWorld();
+		projectileRollback = qfalse;
+	}
+
 killProj:
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?
