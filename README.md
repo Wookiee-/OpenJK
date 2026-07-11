@@ -48,6 +48,6 @@
   - Applied at the start of a private duel (both participants)
   - Winner gets restored to `g_startHealth` / `g_startArmor` at duel end
 
-- **g_duelDistance** cvar (default 1024)
-  - Controls max distance between duelists before duel is auto-cancelled
-  - Set to 0 to disable the distance limit entirely
+- **g_duelDistance** cvar (default 0)
+  - 0 = duel auto-cancels at 1024 units (original behavior)
+  - 1 = no distance limit, duel never cancels from range

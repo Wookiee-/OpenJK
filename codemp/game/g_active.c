@@ -2525,7 +2525,7 @@ void ClientThink_real( gentity_t *ent ) {
 			VectorSubtract(ent->client->ps.origin, duelAgainst->client->ps.origin, vSub);
 			subLen = VectorLength(vSub);
 
-			if (g_duelDistance.integer > 0 && subLen >= g_duelDistance.integer)
+			if (!g_duelDistance.integer && subLen >= 1024)
 			{
 				ent->client->ps.duelInProgress = 0;
 				duelAgainst->client->ps.duelInProgress = 0;
