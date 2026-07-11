@@ -19,6 +19,7 @@
 # The <min>...<policy_max> syntax is needed to remain compatible with 3.1, but also newer versions that dropped 3.1 compatibility
 # More info here: https://cmake.org/cmake/help/latest/command/cmake_minimum_required.html
 cmake_minimum_required(VERSION 3.1...3.31)
+cmake_policy(SET CMP0069 NEW)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 
 set(InOpenJK ON)
@@ -27,6 +28,13 @@ set(ProjectName "OpenJK" CACHE STRING "Project Name")
 project(${ProjectName})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+# Profile-guided optimization (Raven-style PGO)
+#   Phase 1: cmake -B build -DPGO=GENERATE -DCMAKE_BUILD_TYPE=Release
+#   Phase 2: run the built binary on representative maps/workloads
+#   Phase 3: cmake -B build -DPGO=USE -DCMAKE_BUILD_TYPE=Release
+set(PGO "" CACHE STRING "PGO mode: empty=off, GENERATE=instrument, USE=optimize")
+set_property(CACHE PGO PROPERTY STRINGS "" GENERATE USE)
 
 #=============================================================================
 #
@@ -231,6 +239,19 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
+	# MSVC PGO (requires LTCG — only activated when PGO is set)
+	if(PGO STREQUAL "GENERATE")
+		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GL")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG:PGINSTRUMENT")
+		set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /LTCG:PGINSTRUMENT")
+	elseif(PGO STREQUAL "USE")
+		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GL")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG:PGOPTIMIZE")
+		set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /LTCG:PGOPTIMIZE")
+	endif()
+
 	# We don't try to control symbol visibility under MSVC.
 	set(OPENJK_VISIBILITY_FLAGS "")
 elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" MATCHES "Clang"))
@@ -269,6 +290,17 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
+	# Profile-guided optimization (GCC/Clang)
+	if(PGO STREQUAL "GENERATE")
+		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fprofile-generate")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-generate")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -fprofile-generate")
+		set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -fprofile-generate")
+	elseif(PGO STREQUAL "USE")
+		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fprofile-use -Wno-coverage-mismatch")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-use -Wno-coverage-mismatch")
+	endif()
 
 	# enable somewhat modern C++
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
