@@ -3380,13 +3380,6 @@ Ghoul2 Insert End
 		CG_General( cent );
 		break;
 	case ET_PLAYER:
-		// Duel cull: if local player is in a duel, don't render non-opponent players
-		if ( cg.predictedPlayerState.duelInProgress &&
-			 cent->currentState.number != cg.predictedPlayerState.clientNum &&
-			 cent->currentState.number != cg.predictedPlayerState.duelIndex )
-		{
-			break;
-		}
 		CG_Player( cent );
 		break;
 	case ET_ITEM:
@@ -3413,13 +3406,7 @@ Ghoul2 Insert End
 	case ET_SPEAKER:
 		CG_Speaker( cent );
 		break;
-	case ET_NPC:
-		// Duel cull: if local player is in a duel, don't render non-opponent NPCs
-		if ( cg.predictedPlayerState.duelInProgress &&
-			 cent->currentState.number != cg.predictedPlayerState.duelIndex )
-		{
-			break;
-		}
+	case ET_NPC: //An entity that wants to be able to use ghoul2 humanoid (and other) anims. Like a player, but not.
 		CG_G2Animated( cent );
 		break;
 	case ET_TEAM:
