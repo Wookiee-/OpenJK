@@ -3086,6 +3086,17 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 			ent->client->ps.duelInProgress = qtrue;
 			challenged->client->ps.duelInProgress = qtrue;
 
+			if (g_startHealth.integer > 0)
+			{
+				ent->health = ent->client->ps.stats[STAT_HEALTH] = g_startHealth.integer;
+				challenged->health = challenged->client->ps.stats[STAT_HEALTH] = g_startHealth.integer;
+			}
+			if (g_startArmor.integer > 0)
+			{
+				ent->client->ps.stats[STAT_ARMOR] = g_startArmor.integer;
+				challenged->client->ps.stats[STAT_ARMOR] = g_startArmor.integer;
+			}
+
 			ent->client->ps.duelTime = level.time + 2000;
 			challenged->client->ps.duelTime = level.time + 2000;
 

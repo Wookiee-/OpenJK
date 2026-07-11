@@ -3673,7 +3673,11 @@ void ClientSpawn(gentity_t *ent) {
 	WP_SpawnInitForcePowers( ent );
 
 	// health will count down towards max_health
-	if (level.gametype == GT_SIEGE &&
+	if (g_startHealth.integer > 0)
+	{
+		ent->health = client->ps.stats[STAT_HEALTH] = g_startHealth.integer;
+	}
+	else if (level.gametype == GT_SIEGE &&
 		client->siegeClass != -1 &&
 		bgSiegeClasses[client->siegeClass].starthealth)
 	{ //class specifies a start health, so use it
@@ -3713,7 +3717,11 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	// Start with a small amount of armor as well.
-	if (level.gametype == GT_SIEGE &&
+	if (g_startArmor.integer > 0)
+	{
+		client->ps.stats[STAT_ARMOR] = g_startArmor.integer;
+	}
+	else if (level.gametype == GT_SIEGE &&
 		client->siegeClass != -1 /*&&
 		bgSiegeClasses[client->siegeClass].startarmor*/)
 	{ //class specifies a start armor amount, so use it

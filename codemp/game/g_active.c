@@ -2483,9 +2483,17 @@ void ClientThink_real( gentity_t *ent ) {
 			//Winner gets full health.. providing he's still alive
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
-				if (ent->health < ent->client->ps.stats[STAT_MAX_HEALTH])
+				if (g_startHealth.integer > 0)
+				{
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = g_startHealth.integer;
+				}
+				else if (ent->health < ent->client->ps.stats[STAT_MAX_HEALTH])
 				{
 					ent->client->ps.stats[STAT_HEALTH] = ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+				}
+				if (g_startArmor.integer > 0)
+				{
+					ent->client->ps.stats[STAT_ARMOR] = g_startArmor.integer;
 				}
 
 				if (g_spawnInvulnerability.integer)
