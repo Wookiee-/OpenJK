@@ -19,7 +19,31 @@
   - `G_UnrollbackWorld()`: restores all players to their current position
   - Used by melee/saber combat: rewinds to `level.time - attackerPing` so hit registration uses what the attacker saw
 
-- **b8774e46** Rollback helper: visual error smoothing + predictive hit checks
+ - **b8774e46** Rollback helper: visual error smoothing + predictive hit checks
   - Added `predictionErrorOffset`/`predictionErrorTime` to `centity_t` for client-side visual smoothing
   - In `CG_CalcEntityLerpPositions`: stores position deltas < 64 units as `predictionErrorOffset`, decays to zero over 100ms to avoid snapping
   - `CG_CheckPredictiveWeaponHit`: client-side box trace against target's interpolated position for instant hit feedback before server confirmation
+
+- **14e8684e** Duel culling — non-opponent players ghosted during duels
+  - `DuelCull()` in server checks `duelInProgress`/`duelIndex` to return 0 (solid) or 2 (ghost)
+  - Hooked into `SV_ClipMoveToEntities` for server-side collision bypass
+  - Hooked into `SV_BuildClientSnapshot` to set `solid = 0` on entity states
+
+- **8ed3c590** Client-side duel render cull (reverted, server-side solid=0 sufficient)
+
+- **a0e80171** Drop client-side render cull for duels
+
+- **2ad970b6** PGO build support
+  - `-DPGO=GENERATE` / `-DPGO=USE` in CMakeLists.txt
+  - MSVC: `/GL` + `/LTCG:PGINSTRUMENT` / `/LTCG:PGOPTIMIZE`
+  - GCC/Clang: `-fprofile-generate` / `-fprofile-use`
+  - `build-pgo.bat` and `build-pgo.sh` scripts
+
+- **fa0ab94c** Add `g_multiDuel` cvar (default 0)
+  - When 0: only one pair can duel at a time (original behavior)
+  - When 1: multiple pairs can duel simultaneously
+
+- **f59ada90** Add `g_startHealth` / `g_startArmor` cvars (default 0 = disabled)
+  - Applied on spawn (entering from spectator)
+  - Applied at the start of a private duel (both participants)
+  - Winner gets restored to `g_startHealth` / `g_startArmor` at duel end
