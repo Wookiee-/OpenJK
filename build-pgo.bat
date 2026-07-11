@@ -11,10 +11,10 @@ if /I "%1"=="generate" (
 ) else (
     echo Usage: %0 {generate^|use} [build-dir]
     echo.
-    echo   generate   - build instrumented binary (Phase 1)
-    echo   use        - rebuild from profiles (Phase 3)
+    echo   generate   - build instrumented MP binaries (Phase 1)
+    echo   use        - rebuild MP binaries from profiles (Phase 3)
     echo.
-    echo   Phase 2: run the instrumented binary from Phase 1 on
+    echo   Phase 2: run the instrumented binaries from Phase 1 on
     echo            real workloads, then exit to flush profiles.
     echo.
     echo   Examples:
@@ -24,5 +24,5 @@ if /I "%1"=="generate" (
     exit /b 1
 )
 
-cmake -B "%BUILD_DIR%" -A Win32 -DPGO=%PGO% -DBuildMPEngine=OFF -DBuildMPRdVanilla=OFF -DBuildMPRend2=OFF -DBuildMPGame=OFF -DBuildMPCGame=OFF -DBuildMPUI=OFF -DBuildSPEngine=OFF -DBuildSPGame=OFF -DBuildSPRdVanilla=OFF -DBuildJK2SPEngine=OFF -DBuildJK2SPGame=OFF -DBuildJK2SPRdVanilla=OFF
-cmake --build "%BUILD_DIR%" --config Release --target openjkded.x86 -- -m
+cmake -B "%BUILD_DIR%" -A Win32 -DPGO=%PGO% -DBuildSPEngine=OFF -DBuildSPGame=OFF -DBuildSPRdVanilla=OFF -DBuildJK2SPEngine=OFF -DBuildJK2SPGame=OFF -DBuildJK2SPRdVanilla=OFF
+cmake --build "%BUILD_DIR%" --config Release -- -m
