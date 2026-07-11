@@ -32,6 +32,18 @@ esac
 cmake -B "$BUILD_DIR" \
     -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
     -DPGO="$PHASE" \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBuildMPEngine=OFF \
+    -DBuildMPRdVanilla=OFF \
+    -DBuildMPRend2=OFF \
+    -DBuildMPGame=OFF \
+    -DBuildMPCGame=OFF \
+    -DBuildMPUI=OFF \
+    -DBuildSPEngine=OFF \
+    -DBuildSPGame=OFF \
+    -DBuildSPRdVanilla=OFF \
+    -DBuildJK2SPEngine=OFF \
+    -DBuildJK2SPGame=OFF \
+    -DBuildJK2SPRdVanilla=OFF
 
-cmake --build "$BUILD_DIR" --target "$TARGET"
+cmake --build "$BUILD_DIR" --target "$TARGET" -- -j$(nproc)

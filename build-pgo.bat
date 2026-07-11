@@ -24,5 +24,5 @@ if /I "%1"=="generate" (
     exit /b 1
 )
 
-cmake -B "%BUILD_DIR%" -A Win32 -DPGO=%PGO%
-cmake --build "%BUILD_DIR%" --config Release --target openjkded.x86
+cmake -B "%BUILD_DIR%" -A Win32 -DPGO=%PGO% -DBuildMPEngine=OFF -DBuildMPRdVanilla=OFF -DBuildMPRend2=OFF -DBuildMPGame=OFF -DBuildMPCGame=OFF -DBuildMPUI=OFF -DBuildSPEngine=OFF -DBuildSPGame=OFF -DBuildSPRdVanilla=OFF -DBuildJK2SPEngine=OFF -DBuildJK2SPGame=OFF -DBuildJK2SPRdVanilla=OFF
+cmake --build "%BUILD_DIR%" --config Release --target openjkded.x86 -- -m
