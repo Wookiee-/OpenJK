@@ -1122,7 +1122,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 		}
 	}
 
-	// Enforce valid IP key in userinfo without overflow risk
+	// Enforce valid IP key in userinfo without manual string length math
 	if ( NET_IsLocalAddress( &cl->netchan.remoteAddress ) ) {
 		ip = "localhost";
 	} else {
@@ -1131,7 +1131,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 	Info_SetValueForKey( cl->userinfo, "ip", ip );
 
-	// Sanitize high-frequency cvars from userinfo
+	// Clamp com_maxfps/cl_maxpackets to prevent engine exploit abuse
 	val = Info_ValueForKey( cl->userinfo, "com_maxfps" );
 	if ( val && val[0] ) {
 		int fps = atoi( val );
