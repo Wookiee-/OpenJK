@@ -26,7 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "server.h"
 #include "qcommon/stringed_ingame.h"
-#include <algorithm>
 
 #ifdef USE_INTERNAL_ZLIB
 #include "zlib/zlib.h"
@@ -1063,7 +1062,7 @@ into a more C friendly form.
 */
 void SV_UserinfoChanged( client_t *cl ) {
 	char	*val=NULL, *ip=NULL;
-	int		i=0, len=0;
+	int		i=0;
 
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
@@ -1123,7 +1122,16 @@ void SV_UserinfoChanged( client_t *cl ) {
 		}
 	}
 
-	// Sanitize and lock com_maxfps and cl_maxpackets
+	// Enforce valid IP key in userinfo without overflow risk
+	if ( NET_IsLocalAddress( &cl->netchan.remoteAddress ) ) {
+		ip = "localhost";
+	} else {
+		ip = (char *)NET_AdrToString( &cl->netchan.remoteAddress );
+	}
+
+	Info_SetValueForKey( cl->userinfo, "ip", ip );
+
+	// Sanitize high-frequency cvars from userinfo
 	val = Info_ValueForKey( cl->userinfo, "com_maxfps" );
 	if ( val && val[0] ) {
 		int fps = atoi( val );
@@ -1139,25 +1147,6 @@ void SV_UserinfoChanged( client_t *cl ) {
 			Info_SetValueForKey( cl->userinfo, "cl_maxpackets", "100" );
 		}
 	}
-
-	// TTimo
-	// maintain the IP information
-	// the banning code relies on this being consistently present
-	if( NET_IsLocalAddress(&cl->netchan.remoteAddress) )
-		ip = "localhost";
-	else
-		ip = (char*)NET_AdrToString( &cl->netchan.remoteAddress );
-
-	val = Info_ValueForKey( cl->userinfo, "ip" );
-	if( val[0] )
-		len = strlen( ip ) - strlen( val ) + strlen( cl->userinfo );
-	else
-		len = strlen( ip ) + 4 + strlen( cl->userinfo );
-
-	if( len >= MAX_INFO_STRING )
-		SV_DropClient( cl, "userinfo string length exceeded" );
-	else
-		Info_SetValueForKey( cl->userinfo, "ip", ip );
 }
 
 #define INFO_CHANGE_MIN_INTERVAL	6000 //6 seconds is reasonable I suppose
@@ -1337,12 +1326,14 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
-	// 4ms minimum frame delta = 250 FPS max physics step
+	// Minimum 4ms step = max 250 FPS physics clamp
 	constexpr int MIN_FRAME_MSEC = 4;
 	int msecDelta = cmd->serverTime - cl->lastUsercmd.serverTime;
 
-	// Smooth out frame timestamps to prevent high-FPS physics glitches
-	cmd->serverTime = cl->lastUsercmd.serverTime + std::max(msecDelta, MIN_FRAME_MSEC);
+	if ( msecDelta < MIN_FRAME_MSEC && msecDelta > 0 ) {
+		cmd->serverTime = cl->lastUsercmd.serverTime + MIN_FRAME_MSEC;
+	}
+
 	cl->lastUsercmd = *cmd;
 
 	GVM_ClientThink( cl - svs.clients, NULL );
