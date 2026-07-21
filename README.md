@@ -16,3 +16,8 @@
 ## Build system
 - **PGO support**: `-DPGO=GENERATE` / `-DPGO=USE` for MSVC and GCC/Clang
 - **build-pgo.bat / build-pgo.sh**: Scripts for PGO build workflow
+
+## Anti-warp / FPS clamping
+- **`MIN_FRAME_MSEC` (4ms)**: In `SV_ClientThink`, incoming `cmd->serverTime` deltas are clamped to a minimum of 4ms, enforcing a safe 250 FPS ceiling server-side regardless of client's `com_maxfps` setting
+- **`com_maxfps` enforcement**: `SV_UserinfoChanged` intercepts `com_maxfps` from userinfo and forces values >250 or 0 down to 125
+- **`cl_maxpackets` enforcement**: Same function forces `cl_maxpackets` to 100 to prevent network packet flooding
