@@ -27,8 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server.h"
 #include "qcommon/stringed_ingame.h"
 
-#define MIN_FRAME_MSEC 4
-
 #ifdef USE_INTERNAL_ZLIB
 #include "zlib/zlib.h"
 #else
@@ -1124,20 +1122,19 @@ void SV_UserinfoChanged( client_t *cl ) {
 		}
 	}
 
-	// force com_maxfps to 125 to prevent FPS toggling abuse
+	// Sanitize and lock com_maxfps and cl_maxpackets
 	val = Info_ValueForKey( cl->userinfo, "com_maxfps" );
-	if ( val[0] ) {
+	if ( val && val[0] ) {
 		int fps = atoi( val );
-		if ( fps > 250 || fps == 0 ) {
+		if ( fps > 250 || fps < 30 ) {
 			Info_SetValueForKey( cl->userinfo, "com_maxfps", "125" );
 		}
 	}
 
-	// force cl_maxpackets to 100 to prevent network flooding
 	val = Info_ValueForKey( cl->userinfo, "cl_maxpackets" );
-	if ( val[0] ) {
-		int maxpackets = atoi( val );
-		if ( maxpackets > 100 || maxpackets <= 0 ) {
+	if ( val && val[0] ) {
+		int packets = atoi( val );
+		if ( packets > 100 || packets < 30 ) {
 			Info_SetValueForKey( cl->userinfo, "cl_maxpackets", "100" );
 		}
 	}
@@ -1335,14 +1332,17 @@ Also called by bot code
 ==================
 */
 void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
-	int msecDelta = cmd->serverTime - cl->lastUsercmd.serverTime;
-	cmd->serverTime = cl->lastUsercmd.serverTime + Q_max(msecDelta, MIN_FRAME_MSEC);
-
-	cl->lastUsercmd = *cmd;
-
 	if ( cl->state != CS_ACTIVE ) {
 		return;		// may have been kicked during the last usercmd
 	}
+
+	// 4ms minimum frame delta = 250 FPS max physics step
+	constexpr int MIN_FRAME_MSEC = 4;
+	int msecDelta = cmd->serverTime - cl->lastUsercmd.serverTime;
+
+	// Smooth out frame timestamps to prevent high-FPS physics glitches
+	cmd->serverTime = cl->lastUsercmd.serverTime + std::max(msecDelta, MIN_FRAME_MSEC);
+	cl->lastUsercmd = *cmd;
 
 	GVM_ClientThink( cl - svs.clients, NULL );
 }
