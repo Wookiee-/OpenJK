@@ -1326,7 +1326,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
-	// Minimum 4ms step = max 250 FPS physics clamp
+	// Minimum 4ms step = max 250 FPS physics tick rate clamp
 	constexpr int MIN_FRAME_MSEC = 4;
 	int msecDelta = cmd->serverTime - cl->lastUsercmd.serverTime;
 
