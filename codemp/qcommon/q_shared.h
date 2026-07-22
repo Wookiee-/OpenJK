@@ -1247,6 +1247,7 @@ typedef struct playerState_s {
 	qboolean	duelInProgress;
 
 	int			saberAttackChainCount;
+	int			saberRiposteTime;
 
 	int			saberHolstered;
 

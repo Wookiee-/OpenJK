@@ -3620,10 +3620,8 @@ void WP_SaberApplyDamage( gentity_t *self )
 			self->client->ps.stats[STAT_ARMOR] -= 10;
 			if ( self->client->ps.stats[STAT_ARMOR] < 0 )
 				self->client->ps.stats[STAT_ARMOR] = 0;
-			// grant defender riposte state
-			victim->client->ps.pm_flags |= PMF_RIPOSTE;
-			victim->client->riposteTime = level.time + 500;
-			victim->client->riposteSpeedScale = 1.15f;
+			// grant defender riposte window for 500ms
+			victim->client->ps.saberRiposteTime = level.time + 500;
 		}
 
 		// Startup wind-up interrupt: if victim is in early attack frames, bypass armor

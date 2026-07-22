@@ -3775,6 +3775,18 @@ void PM_SetSaberMove(short newMove)
 		pm->ps->saberAttackChainCount = 16;
 	}
 
+	// Riposte speed boost: 1.15x faster counter-attack after perfect parry
+	if ( BG_SaberInAttack( newMove ) && pm->ps->saberRiposteTime > pm->cmd.serverTime )
+	{
+		// 1.15x speed multiplier = reduce timer by ~13%
+		int oldTimer = pm->ps->torsoTimer;
+		if ( oldTimer > 50 )
+		{
+			pm->ps->torsoTimer = (int)( oldTimer * 0.87f );
+		}
+		pm->ps->saberRiposteTime = 0;
+	}
+
 	if (BG_SaberInAttack( newMove ) && pm->ps->stats[STAT_ARMOR] > 0)
 	{
 		int armorCost = 0;

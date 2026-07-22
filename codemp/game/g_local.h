@@ -810,9 +810,6 @@ struct gclient_s {
 	int						saberHitEntityBitMask;
 	int						saberLastAttackSequence;
 
-	// Perfect parry / riposte
-	int						riposteTime;
-	float					riposteSpeedScale;
 };
 
 //Interest points

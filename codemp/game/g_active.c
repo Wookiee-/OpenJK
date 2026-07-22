@@ -3090,25 +3090,6 @@ void ClientThink_real( gentity_t *ent ) {
 
 	Pmove (&pmove);
 
-	// Riposte speed boost: reduce weaponTime for 1.15x faster next attack
-	if ( ( ent->client->ps.pm_flags & PMF_RIPOSTE ) && ent->client->riposteTime > level.time )
-	{
-		if ( ent->client->ps.weaponTime > 0 )
-		{
-			ent->client->ps.weaponTime = (int)( ent->client->ps.weaponTime * 0.87f );
-			if ( ent->client->ps.weaponTime < 50 )
-				ent->client->ps.weaponTime = 50;
-		}
-		if ( ent->client->ps.torsoTimer > 0 )
-		{
-			ent->client->ps.torsoTimer = (int)( ent->client->ps.torsoTimer * 0.87f );
-		}
-	}
-	else if ( ent->client->ps.pm_flags & PMF_RIPOSTE )
-	{// riposte expired, clear flag
-		ent->client->ps.pm_flags &= ~PMF_RIPOSTE;
-	}
-
 	if (ent->client->solidHack)
 	{
 		if (ent->client->solidHack > level.time)
