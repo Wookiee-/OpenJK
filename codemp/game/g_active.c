@@ -822,21 +822,30 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		}
 
 		// Tick-based recovery
-		if ( client->ps.weaponstate == WEAPON_FIRING || client->ps.saberAttackChainCount > 0 ||
-			 client->ps.pm_flags & PMF_ROLLING )
-		{// sprinting/attacking: drain armor, no health regen
+		qboolean isActive = qfalse;
+		if ( client->ps.weaponstate == WEAPON_FIRING || client->ps.saberAttackChainCount > 0 )
+			isActive = qtrue; // attacking
+		else if ( client->ps.groundEntityNum == ENTITYNUM_NONE )
+			isActive = qtrue; // jumping/falling
+		else if ( client->pers.cmd.forwardmove > 10 || client->pers.cmd.rightmove > 10 )
+			isActive = qtrue; // sprinting/running
+
+		if ( isActive )
+		{// sprinting/running/jumping/attacking: drain armor, no health regen
 			client->ps.stats[STAT_ARMOR] -= 3;
 			if ( client->ps.stats[STAT_ARMOR] < 0 )
 				client->ps.stats[STAT_ARMOR] = 0;
 		}
 		else
 		{// standing/walking: regen health and armor
-			if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
+			if ( ent->health < 100 )
+			{
 				ent->health += 5;
-				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] )
-					ent->health = client->ps.stats[STAT_MAX_HEALTH];
+				if ( ent->health > 100 )
+					ent->health = 100;
 			}
-			if ( client->ps.stats[STAT_ARMOR] < 100 ) {
+			if ( client->ps.stats[STAT_ARMOR] < 100 )
+			{
 				client->ps.stats[STAT_ARMOR] += 5;
 				if ( client->ps.stats[STAT_ARMOR] > 100 )
 					client->ps.stats[STAT_ARMOR] = 100;
