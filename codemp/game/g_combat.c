@@ -2923,7 +2923,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 CheckArmor
 ================
 */
-int CheckArmor (gentity_t *ent, int damage, int dflags)
+int CheckArmor (gentity_t *ent, int damage, int dflags, qboolean backHit)
 {
 	gclient_t	*client;
 	int			save;
@@ -2946,26 +2946,70 @@ int CheckArmor (gentity_t *ent, int damage, int dflags)
 	{//ion-cannon has disabled this ship's shields, take damage on hull!
 		return 0;
 	}
-	// armor
+
+	// 4-Tier saber absorption: only applies to saber damage from the front
+	if (dflags & DAMAGE_SABER)
+	{
+		count = client->ps.stats[STAT_ARMOR];
+		if (count <= 0)
+			return 0;
+
+		// Backstab / flank: bypass armor entirely
+		if (backHit)
+		{
+			client->ps.stats[STAT_ARMOR] -= damage;
+			if (client->ps.stats[STAT_ARMOR] < 0)
+				client->ps.stats[STAT_ARMOR] = 0;
+			return 0;
+		}
+
+		int maxHealth = client->ps.stats[STAT_MAX_HEALTH];
+		if (maxHealth <= 0) maxHealth = 100;
+		int armorPct = (count * 100) / maxHealth;
+
+		float absorbPct = 0.0f;
+
+		if (armorPct >= 75)
+			absorbPct = 1.0f;
+		else if (armorPct >= 50)
+			absorbPct = 0.8f;
+		else if (armorPct >= 25)
+			absorbPct = 0.5f;
+		else if (armorPct >= 1)
+			absorbPct = 0.25f;
+		else
+			absorbPct = 0.0f;
+
+		int absorb = ceil(damage * absorbPct);
+		if (absorb > count)
+			absorb = count;
+
+		client->ps.stats[STAT_ARMOR] -= absorb;
+		if (client->ps.stats[STAT_ARMOR] < 0)
+			client->ps.stats[STAT_ARMOR] = 0;
+
+		return absorb;
+	}
+
+	// Non-saber damage: original armor behavior
 	count = client->ps.stats[STAT_ARMOR];
 
 	if (dflags & DAMAGE_HALF_ABSORB)
-	{	// Half the damage gets absorbed by the shields, rather than 100%
+	{
 		save = ceil( damage * ARMOR_PROTECTION );
 	}
 	else
-	{	// All the damage gets absorbed by the shields.
+	{
 		save = damage;
 	}
 
-	// save is the most damage that the armor is elibigle to protect, of course, but it's limited by the total armor.
 	if (save >= count)
 		save = count;
 
 	if (!save)
 		return 0;
 
-	if (dflags & DAMAGE_HALF_ARMOR_REDUCTION)		// Armor isn't whittled so easily by sniper shots.
+	if (dflags & DAMAGE_HALF_ARMOR_REDUCTION)
 	{
 		client->ps.stats[STAT_ARMOR] -= (int)(save*ARMOR_REDUCTION_FACTOR);
 	}
@@ -4950,7 +4994,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	take = damage;
 
 	// save some from armor
-	asave = CheckArmor (targ, take, dflags);
+	qboolean backHit = qfalse;
+	if (attacker && attacker->client && targ->client && mod == MOD_SABER)
+	{
+		vec3_t targFwd, attackDir;
+		AngleVectors(targ->client->ps.viewangles, targFwd, NULL, NULL);
+		VectorSubtract(attacker->client->ps.origin, targ->client->ps.origin, attackDir);
+		VectorNormalize(attackDir);
+		if (DotProduct(targFwd, attackDir) > -0.2f)
+			backHit = qtrue;
+	}
+	asave = CheckArmor (targ, take, dflags, backHit);
 
 	if (asave)
 	{

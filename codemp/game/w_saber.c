@@ -3488,6 +3488,12 @@ static vec3_t	dmgSpot[MAX_SABER_VICTIMS];
 static qboolean dismemberDmg[MAX_SABER_VICTIMS];
 static int saberKnockbackFlags[MAX_SABER_VICTIMS];
 static int numVictims = 0;
+
+// Per-swing hit history: tracks which entity numbers have been hit this swing
+#define MAX_SABER_HISTORY 64
+static int saberHitHistory[MAX_SABER_HISTORY];
+static int saberHistoryCount = 0;
+static int saberHistoryAttackSeq = -1;
 void WP_SaberClearDamage( void )
 {
 	int ven;
@@ -3573,6 +3579,34 @@ void WP_SaberApplyDamage( gentity_t *self )
 			( self->client->saberHitEntityBitMask & ( 1 << victim->s.number ) ) )
 		{
 			continue;
+		}
+
+		// Extended hit history for non-client entities
+		{
+			int h;
+			qboolean alreadyHit = qfalse;
+			for ( h = 0; h < saberHistoryCount; h++ )
+			{
+				if ( saberHitHistory[h] == victim->s.number )
+				{
+					alreadyHit = qtrue;
+					break;
+				}
+			}
+			if ( alreadyHit )
+				continue;
+			if ( saberHistoryCount < MAX_SABER_HISTORY )
+				saberHitHistory[saberHistoryCount++] = victim->s.number;
+		}
+
+		// Startup wind-up interrupt: if victim is in early attack frames, bypass armor
+		if ( victim->client && BG_SaberInAttack( victim->client->ps.saberMove ) &&
+			victim->client->ps.weaponstate == WEAPON_FIRING )
+		{
+			dflags |= DAMAGE_NO_ARMOR;
+			victim->client->ps.saberAttackChainCount = 0;
+			victim->client->ps.saberMove = LS_READY;
+			victim->client->ps.weaponstate = WEAPON_IDLE;
 		}
 
 // nmckenzie: SABER_DAMAGE_WALLS
@@ -8814,6 +8848,8 @@ nextStep:
 		{
 			self->client->saberHitEntityBitMask = 0;
 			self->client->saberLastAttackSequence = self->client->ps.saberAttackSequence;
+			saberHistoryCount = 0;
+			saberHistoryAttackSeq = self->client->ps.saberAttackSequence;
 		}
 
 		WP_SaberClearDamage();

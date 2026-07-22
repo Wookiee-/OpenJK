@@ -112,6 +112,8 @@ XCVAR_DEF( g_gametype,					"0",			NULL,						CVAR_SERVERINFO|CVAR_LATCH,						qf
 XCVAR_DEF( g_gravity,					"800",			NULL,						CVAR_NONE,										qtrue )
 XCVAR_DEF( g_startHealth,				"0",			NULL,						CVAR_SERVERINFO|CVAR_ARCHIVE,					qtrue )
 XCVAR_DEF( g_startArmor,				"0",			NULL,						CVAR_SERVERINFO|CVAR_ARCHIVE,					qtrue )
+XCVAR_DEF( g_flipkick,					"0",			NULL,						CVAR_ARCHIVE,									qtrue )
+XCVAR_DEF( g_gripSpeedScale,			"1.0",			NULL,						CVAR_ARCHIVE,									qtrue )
 XCVAR_DEF( g_inactivity,				"0",			NULL,						CVAR_NONE,										qtrue )
 XCVAR_DEF( g_jediVmerc,					"0",			NULL,						CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE,		qtrue )
 XCVAR_DEF( g_knockback,					"1000",			NULL,						CVAR_NONE,										qtrue )

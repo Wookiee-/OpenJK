@@ -21,3 +21,20 @@
 - **`MIN_FRAME_MSEC` (4ms)**: In `SV_ClientThink`, incoming `cmd->serverTime` deltas are clamped to a minimum of 4ms, enforcing a safe 250 FPS ceiling server-side regardless of client's `com_maxfps` setting
 - **`com_maxfps` enforcement**: `SV_UserinfoChanged` intercepts `com_maxfps` from userinfo and forces values >250 or 0 down to 125
 - **`cl_maxpackets` enforcement**: Same function forces `cl_maxpackets` to 100 to prevent network packet flooding
+
+## Saber combat overhaul
+- **Block Points via STAT_ARMOR**: `STAT_ARMOR` is used as saber blocking stamina (capped at 100)
+- **Per-swing hit tracking**: `saberHitHistory[]` array prevents multi-hit per unique weapon swing, reset on new attack sequence
+- **Stance-based max combos**: Fast=5, Medium=4, Heavy=3 consecutive swings before forced recovery
+- **Swing stamina costs**: Fast=3/2, Medium=6/5, Heavy=12/10 (initial/combo extension) deducted from `STAT_ARMOR`
+- **4-tier damage absorption**: Saber damage from front:
+  - 75-100% armor: 100% absorbed, 0% leaks
+  - 50-74% armor: 80% absorbed, 20% leaks
+  - 25-49% armor: 50% absorbed, 50% leaks
+  - 1-24% armor: 25% absorbed, 75% leaks
+  - 0% armor: Guard broken, 100% damage to health
+- **Backstab/flank**: Hits from behind (dot > -0.2) bypass armor entirely
+- **Startup wind-up interrupt**: Hitting a player in early attack frames bypasses armor, breaks their attack, resets combo
+- **Tick-based regen**: Standing/walking regens 5 HP + 5 armor/sec (cap 100). Sprinting/attacking drains 3 armor/sec, no HP regen
+- **`g_flipkick`** (0/1): Restores JO chest-kick knockdown against Force channelers
+- **`g_gripSpeedScale`** (default 1.0): Multiplier for movement speed while channeling Force Grip

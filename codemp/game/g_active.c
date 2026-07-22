@@ -820,6 +820,28 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
+
+		// Tick-based recovery
+		if ( client->ps.weaponstate == WEAPON_FIRING || client->ps.saberAttackChainCount > 0 ||
+			 client->ps.pm_flags & PMF_ROLLING )
+		{// sprinting/attacking: drain armor, no health regen
+			client->ps.stats[STAT_ARMOR] -= 3;
+			if ( client->ps.stats[STAT_ARMOR] < 0 )
+				client->ps.stats[STAT_ARMOR] = 0;
+		}
+		else
+		{// standing/walking: regen health and armor
+			if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
+				ent->health += 5;
+				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] )
+					ent->health = client->ps.stats[STAT_MAX_HEALTH];
+			}
+			if ( client->ps.stats[STAT_ARMOR] < 100 ) {
+				client->ps.stats[STAT_ARMOR] += 5;
+				if ( client->ps.stats[STAT_ARMOR] > 100 )
+					client->ps.stats[STAT_ARMOR] = 100;
+			}
+		}
 	}
 }
 

@@ -3750,12 +3750,44 @@ void PM_SetSaberMove(short newMove)
 	}
 	else if ( BG_SaberInAttack( newMove ) )
 	{//continuing with a kata, increment attack counter
-		pm->ps->saberAttackChainCount++;
+		int maxCombo = 16;
+		if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3)
+			maxCombo = 3;
+		else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2)
+			maxCombo = 4;
+		else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1)
+			maxCombo = 5;
+
+		if (pm->ps->saberAttackChainCount >= maxCombo)
+		{
+			newMove = LS_READY;
+			anim = saberMoveData[LS_READY].animToUse;
+			setflags = saberMoveData[LS_READY].animSetFlags;
+		}
+		else
+		{
+			pm->ps->saberAttackChainCount++;
+		}
 	}
 
 	if (pm->ps->saberAttackChainCount > 16)
 	{ //for the sake of being able to send the value over the net within a reasonable bit count
 		pm->ps->saberAttackChainCount = 16;
+	}
+
+	if (BG_SaberInAttack( newMove ) && pm->ps->stats[STAT_ARMOR] > 0)
+	{
+		int armorCost = 0;
+		if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1)
+			armorCost = (pm->ps->saberAttackChainCount == 0) ? 3 : 2;
+		else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2)
+			armorCost = (pm->ps->saberAttackChainCount == 0) ? 6 : 5;
+		else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3)
+			armorCost = (pm->ps->saberAttackChainCount == 0) ? 12 : 10;
+
+		pm->ps->stats[STAT_ARMOR] -= armorCost;
+		if (pm->ps->stats[STAT_ARMOR] < 0)
+			pm->ps->stats[STAT_ARMOR] = 0;
 	}
 
 	if ( newMove == LS_DRAW )
