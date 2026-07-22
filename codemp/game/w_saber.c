@@ -3599,8 +3599,35 @@ void WP_SaberApplyDamage( gentity_t *self )
 				saberHitHistory[saberHistoryCount++] = victim->s.number;
 		}
 
+		// Perfect parry: defender in active block/parry state
+		qboolean perfectParry = qfalse;
+		if ( victim->client && !( dflags & DAMAGE_NO_DAMAGE ) &&
+			( PM_SaberInParry( victim->client->ps.saberMove ) ||
+			  PM_SaberInReflect( victim->client->ps.saberMove ) ||
+			  PM_SaberInKnockaway( victim->client->ps.saberMove ) ) )
+		{
+			perfectParry = qtrue;
+		}
+
+		if ( perfectParry )
+		{// defender perfectly parried: zero damage, stagger attacker, riposte
+			dflags |= DAMAGE_NO_DAMAGE;
+			// stagger attacker for 350ms, cancel their combo
+			self->client->ps.weaponTime = 350;
+			self->client->ps.saberAttackChainCount = 0;
+			self->client->ps.saberMove = LS_READY;
+			// deduct armor from attacker
+			self->client->ps.stats[STAT_ARMOR] -= 10;
+			if ( self->client->ps.stats[STAT_ARMOR] < 0 )
+				self->client->ps.stats[STAT_ARMOR] = 0;
+			// grant defender riposte state
+			victim->client->ps.pm_flags |= PMF_RIPOSTE;
+			victim->client->riposteTime = level.time + 500;
+			victim->client->riposteSpeedScale = 1.15f;
+		}
+
 		// Startup wind-up interrupt: if victim is in early attack frames, bypass armor
-		if ( victim->client && BG_SaberInAttack( victim->client->ps.saberMove ) &&
+		if ( victim->client && !perfectParry && BG_SaberInAttack( victim->client->ps.saberMove ) &&
 			victim->client->ps.weaponstate == WEAPON_FIRING )
 		{
 			dflags |= DAMAGE_NO_ARMOR;

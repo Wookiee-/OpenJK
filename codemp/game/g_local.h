@@ -809,6 +809,10 @@ struct gclient_s {
 	// Tracks which entities have been hit in the current saber swing
 	int						saberHitEntityBitMask;
 	int						saberLastAttackSequence;
+
+	// Perfect parry / riposte
+	int						riposteTime;
+	float					riposteSpeedScale;
 };
 
 //Interest points
