@@ -35,6 +35,6 @@
   - 0% armor: Guard broken, 100% damage to health
 - **Backstab/flank**: Hits from behind (dot > -0.2) bypass armor entirely
 - **Startup wind-up interrupt**: Hitting a player in early attack frames bypasses armor, breaks their attack, resets combo
-- **Tick-based regen**: Standing/walking regens 5 HP + 5 armor/sec (cap 100). Sprinting/attacking drains 3 armor/sec, no HP regen
+- **Tick-based regen**: 1000ms tick via `ClientTimerActions`. Standing still/walking (`ps->speed <= 100`): +5 HP +5 armor/sec (cap 100). Running (`ps->speed > 100`), airborne, or attacking (`ps->weaponTime > 0`): -3 armor/sec, HP regen frozen
 - **`g_flipkick`** (0/1): Restores JO chest-kick knockdown against Force channelers
 - **`g_gripSpeedScale`** (default 1.0): Multiplier for movement speed while channeling Force Grip
