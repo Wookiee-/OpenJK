@@ -27,11 +27,10 @@
 - **Per-swing hit tracking**: `saberHitHistory[]` array prevents multi-hit per unique weapon swing, reset on new attack sequence
 - **Stance-based max combos**: Fast=5, Medium=4, Heavy=3 consecutive swings before forced recovery
 - **Swing stamina costs**: Fast=3/2, Medium=6/5, Heavy=12/10 (initial/combo extension) deducted from `STAT_ARMOR`
-- **4-tier damage absorption**: Saber damage from front:
-  - 75-100% armor: 100% absorbed, 0% leaks
-  - 50-74% armor: 80% absorbed, 20% leaks
-  - 25-49% armor: 50% absorbed, 50% leaks
-  - 1-24% armor: 25% absorbed, 75% leaks
+- **3-tier damage absorption** (thirds): Saber damage from front:
+  - 67-100% armor: 100% absorbed, 0% leaks
+  - 34-66% armor: 50% absorbed, 50% leaks
+  - 1-33% armor: 25% absorbed, 75% leaks
   - 0% armor: Guard broken, 100% damage to health
 - **Backstab/flank**: Hits from behind (dot > -0.2) bypass armor entirely
 - **Startup wind-up interrupt**: Hitting a player in early attack frames bypasses armor, breaks their attack, resets combo

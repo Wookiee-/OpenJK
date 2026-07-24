@@ -2969,11 +2969,9 @@ int CheckArmor (gentity_t *ent, int damage, int dflags, qboolean backHit)
 
 		float absorbPct = 0.0f;
 
-		if (armorPct >= 75)
+		if (armorPct >= 67)
 			absorbPct = 1.0f;
-		else if (armorPct >= 50)
-			absorbPct = 0.8f;
-		else if (armorPct >= 25)
+		else if (armorPct >= 34)
 			absorbPct = 0.5f;
 		else if (armorPct >= 1)
 			absorbPct = 0.25f;
@@ -2981,9 +2979,6 @@ int CheckArmor (gentity_t *ent, int damage, int dflags, qboolean backHit)
 			absorbPct = 0.0f;
 
 		int absorb = ceil(damage * absorbPct);
-		// Minimum chip: even at Tier 4, drain at least 1 armor
-		if (absorb <= 0 && count > 0)
-			absorb = 1;
 		if (absorb > count)
 			absorb = count;
 
