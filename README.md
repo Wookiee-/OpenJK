@@ -37,6 +37,7 @@
 - **Startup wind-up interrupt**: Hitting a player in early attack frames bypasses armor, breaks their attack, resets combo
 - **Perfect parry**: If defender is in a parry/reflect/knockaway state when hit, damage is negated, attacker is staggered 350ms with combo cancelled, attacker loses 10 armor, defender gains `ps->saberRiposteTime = 500ms`
 - **Riposte**: Defender's next attack within riposte window plays 1.15x faster (torsoTimer * 0.87), window consumed on use
-- **Tick-based regen**: 1000ms tick via `ClientTimerActions`. Standing still/walking (`ps->speed <= 100`): +5 HP +5 armor/sec (cap 100). Running (`ps->speed > 100`), airborne, or attacking (`ps->weaponTime > 0`): -3 armor/sec, HP regen frozen
+- **Tick-based regen**: 1000ms tick via `ClientTimerActions`. Standing still/walking (`ps->speed <= 100` and `weaponTime == 0`): +3 HP +3 armor/sec (cap 100). Running (`ps->speed > 100`), airborne, or in combat (`ps->weaponTime > 0`): -3 armor/sec, HP regen frozen
+- **Minimum armor chip**: Even at Tier 4 (100% absorb), at least 1 armor is drained per hit to prevent stalemates
 - **`g_flipkick`** (0/1): Restores JO chest-kick knockdown against Force channelers
 - **`g_gripSpeedScale`** (default 1.0): Multiplier for movement speed while channeling Force Grip

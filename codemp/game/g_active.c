@@ -824,14 +824,14 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		// Tick-based recovery
 		qboolean isActive = qfalse;
 		if ( client->ps.weaponTime > 0 )
-			isActive = qtrue; // attacking
+			isActive = qtrue; // attacking or in block stun/recovery
 		else if ( client->ps.groundEntityNum == ENTITYNUM_NONE )
 			isActive = qtrue; // airborne/jumping
 		else if ( client->ps.speed > 100 )
 			isActive = qtrue; // running at normal speed
 
 		if ( isActive )
-		{// running/airborne/attacking: drain armor, no health regen
+		{// combat/active: drain armor, no health regen
 			client->ps.stats[STAT_ARMOR] -= 3;
 			if ( client->ps.stats[STAT_ARMOR] < 0 )
 				client->ps.stats[STAT_ARMOR] = 0;
@@ -840,13 +840,13 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		{// standing still or walking: regen health and armor
 			if ( ent->health < 100 )
 			{
-				ent->health += 5;
+				ent->health += 3;
 				if ( ent->health > 100 )
 					ent->health = 100;
 			}
 			if ( client->ps.stats[STAT_ARMOR] < 100 )
 			{
-				client->ps.stats[STAT_ARMOR] += 5;
+				client->ps.stats[STAT_ARMOR] += 3;
 				if ( client->ps.stats[STAT_ARMOR] > 100 )
 					client->ps.stats[STAT_ARMOR] = 100;
 			}

@@ -2981,6 +2981,9 @@ int CheckArmor (gentity_t *ent, int damage, int dflags, qboolean backHit)
 			absorbPct = 0.0f;
 
 		int absorb = ceil(damage * absorbPct);
+		// Minimum chip: even at Tier 4, drain at least 1 armor
+		if (absorb <= 0 && count > 0)
+			absorb = 1;
 		if (absorb > count)
 			absorb = count;
 
