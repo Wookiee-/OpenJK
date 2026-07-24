@@ -3609,6 +3609,15 @@ void WP_SaberApplyDamage( gentity_t *self )
 			perfectParry = qtrue;
 		}
 
+		// Hit-confirm chain boost: landing a hit speeds up next chain swing
+		if ( !perfectParry && !( dflags & DAMAGE_NO_DAMAGE ) && victim->client )
+		{
+			// reduce weaponTime to let the next swing chain faster
+			self->client->ps.weaponTime = (int)( self->client->ps.weaponTime * 0.5f );
+			if ( self->client->ps.weaponTime < 50 )
+				self->client->ps.weaponTime = 50;
+		}
+
 		if ( perfectParry )
 		{// defender perfectly parried: zero damage, stagger attacker, riposte
 			dflags |= DAMAGE_NO_DAMAGE;
