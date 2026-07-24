@@ -2965,18 +2965,12 @@ int CheckArmor (gentity_t *ent, int damage, int dflags, qboolean backHit)
 
 		int maxHealth = client->ps.stats[STAT_MAX_HEALTH];
 		if (maxHealth <= 0) maxHealth = 100;
-		int armorPct = (count * 100) / maxHealth;
+		float armorFrac = (float)count / (float)maxHealth;
+		if (armorFrac > 1.0f) armorFrac = 1.0f;
 
-		float absorbPct = 0.0f;
-
-		if (armorPct >= 67)
-			absorbPct = 1.0f;
-		else if (armorPct >= 34)
-			absorbPct = 0.5f;
-		else if (armorPct >= 1)
-			absorbPct = 0.25f;
-		else
-			absorbPct = 0.0f;
+		// Dynamic absorption: scales linearly with current armor %
+		// At 100 armor: 100% absorb. At 50 armor: 50% absorb. At 0 armor: 0% absorb.
+		float absorbPct = armorFrac;
 
 		int absorb = ceil(damage * absorbPct);
 		if (absorb > count)
