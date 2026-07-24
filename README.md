@@ -34,6 +34,5 @@
 - **Riposte**: Defender's next attack within riposte window plays 1.15x faster (torsoTimer * 0.87), window consumed on use
 - **Hit-confirm chain boost**: Landing a saber hit halves `weaponTime` (min 50ms), allowing faster chain swings on hit. Misses play full recovery.
 - **Tick-based regen**: 1000ms tick via `ClientTimerActions`. Standing still/walking (`ps->speed <= 100` and `weaponTime == 0`): +5 HP +5 armor/sec (cap 100). Running (`ps->speed > 100`), airborne, or in combat (`ps->weaponTime > 0`): -3 armor/sec, HP regen frozen
-- **Minimum armor chip**: Even at Tier 4 (100% absorb), at least 1 armor is drained per hit to prevent stalemates
 - **`g_flipkick`** (0/1): Restores JO chest-kick knockdown against Force channelers
 - **`g_gripSpeedScale`** (default 1.0): Multiplier for movement speed while channeling Force Grip
