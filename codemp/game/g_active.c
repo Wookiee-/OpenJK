@@ -840,13 +840,13 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		{// standing still or walking: regen health and armor
 			if ( ent->health < 100 )
 			{
-				ent->health += 3;
+				ent->health += 5;
 				if ( ent->health > 100 )
 					ent->health = 100;
 			}
 			if ( client->ps.stats[STAT_ARMOR] < 100 )
 			{
-				client->ps.stats[STAT_ARMOR] += 3;
+				client->ps.stats[STAT_ARMOR] += 5;
 				if ( client->ps.stats[STAT_ARMOR] > 100 )
 					client->ps.stats[STAT_ARMOR] = 100;
 			}
