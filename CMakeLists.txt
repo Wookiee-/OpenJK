@@ -262,13 +262,36 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 
-	if (X86)
+	# =========================================================================
+	# LEGACY ICC 7.0/8.0 EMULATION MATRIX (2003 Era Optimization, 32-bit)
+	# =========================================================================
+	# 1. Force execution pipeline logic to strict Pentium 4 architecture (32-bit only)
+	# 2. Re-enable ultra-aggressive math shortcuts used by early Intel compilers
+	# 3. Strip out modern wide registers (AVX) that break legacy math rounding
+	# 4. Enforce float-store to mitigate intermediate 80-bit x87 register drift
+	# =========================================================================
+	# NOTE: -march=pentium4 is 32-bit only and fails on x86_64. Gate it.
+	set(ICC_MATH_FLAGS "-ffast-math -mno-avx -mno-avx2 -mno-avx512f -ffloat-store")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ICC_MATH_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICC_MATH_FLAGS}")
+
+	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=pentium4 -mstackrealign -mfpmath=sse")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium4 -mstackrealign -mfpmath=sse")
+	elseif(X86)
+		# 64-bit x86: SSE2 is baseline, keep explicit flag from upstream.
+		# Also preserves x86 VM mstackrealign requirement on 32-bit MinGW (see below).
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	endif()
 
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+	# Enforce -O2 release optimization (ICC 7.0/8.0 era default, strict FP-safe loop handling)
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -fno-strict-aliasing -fno-pie")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-strict-aliasing -fno-pie")
+
+	# Linker Flags for Executables and Shared Libraries (.so)
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -no-pie")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -no-pie")
 
 	# enable somewhat modern C++
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
